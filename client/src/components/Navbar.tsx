@@ -47,6 +47,13 @@ const Navbar = () => {
               </Button>
             </div>
           )}
+          {user && (
+            <div className="hidden md:flex items-center space-x-4">
+              <Button variant="outline" size="sm" onClick={() => navigate('/wishlist')}>
+                Wishlist
+              </Button>
+            </div>
+          )}
 
           {/* Mobile menu button */}
           <div className="md:hidden">

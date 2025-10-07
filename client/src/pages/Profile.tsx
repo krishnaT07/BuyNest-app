@@ -13,10 +13,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatDate, isValidEmail, isValidPhone } from "@/lib/utils";
 import { User, Mail, Phone, MapPin, Calendar, Edit, Save, X, Key } from "lucide-react";
 import { LocationInput } from "@/components/LocationInput";
+import { useAddressBook } from "@/context/AddressBookContext";
 
 const Profile = () => {
   const { user, updateUser } = useAuth();
   const { toast } = useToast();
+  const { addresses, addAddress, removeAddress } = useAddressBook();
   
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -331,6 +333,50 @@ const Profile = () => {
                   Click "Change Password" to receive a password reset link via email.
                 </p>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Address Book */}
+          <Card className="lg:col-span-3">
+            <CardHeader>
+              <CardTitle>Address Book</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="md:col-span-2">
+                  <Label>New Address</Label>
+                  <Textarea className="mt-1" placeholder="Line 1, Line 2, City, State, ZIP" id="newAddress" />
+                </div>
+                <div>
+                  <Label>Label</Label>
+                  <Input className="mt-1" placeholder="Home / Work" id="newLabel" />
+                  <Button className="mt-2" onClick={() => {
+                    const line = (document.getElementById('newAddress') as HTMLTextAreaElement)?.value || '';
+                    const label = (document.getElementById('newLabel') as HTMLInputElement)?.value || 'Address';
+                    if (!line.trim()) { toast({ title: 'Enter address', variant: 'destructive' }); return; }
+                    addAddress({ label, line1: line });
+                    (document.getElementById('newAddress') as HTMLTextAreaElement).value = '';
+                    (document.getElementById('newLabel') as HTMLInputElement).value = '';
+                    toast({ title: 'Address saved' });
+                  }}>Save Address</Button>
+                </div>
+              </div>
+
+              {addresses.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No saved addresses yet.</p>
+              ) : (
+                <div className="grid md:grid-cols-2 gap-4">
+                  {addresses.map(a => (
+                    <div key={a.id} className="p-3 rounded border flex items-start justify-between">
+                      <div>
+                        <p className="font-semibold">{a.label}</p>
+                        <p className="text-sm text-muted-foreground whitespace-pre-wrap">{a.line1}</p>
+                      </div>
+                      <Button variant="outline" size="sm" onClick={() => removeAddress(a.id)}>Remove</Button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

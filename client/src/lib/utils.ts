@@ -14,6 +14,19 @@ export function formatCurrency(amount: number, currency = DEFAULTS.CURRENCY_SYMB
   return `${currency}${amount.toFixed(2)}`;
 }
 
+// Simple coupon validation utility (can be replaced by Supabase table)
+export function validateCoupon(code: string, cartTotal: number): { valid: boolean; discount: number; message: string } {
+  const normalized = code.trim().toUpperCase();
+  if (!normalized) return { valid: false, discount: 0, message: 'Enter a code' };
+  if (normalized === 'WELCOME10' && cartTotal >= 499) {
+    return { valid: true, discount: Math.min(cartTotal * 0.1, 150), message: '10% off applied' };
+  }
+  if (normalized === 'FREESHIP' && cartTotal >= 999) {
+    return { valid: true, discount: 49, message: 'Delivery fee waived' };
+  }
+  return { valid: false, discount: 0, message: 'Invalid or ineligible coupon' };
+}
+
 /**
  * Format dates consistently
  */

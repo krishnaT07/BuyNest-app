@@ -128,6 +128,7 @@ const Login = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
+                      autoComplete="email"
                       className="pl-12 h-12 bg-background border-border focus:border-primary transition-all rounded-xl relative z-0"
                       placeholder="you@example.com"
                       disabled={isLoading}
@@ -155,6 +156,7 @@ const Login = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
+                      autoComplete="current-password"
                       className="pl-12 h-12 bg-background border-border focus:border-primary transition-all rounded-xl relative z-0"
                       placeholder="Enter your password"
                       disabled={isLoading}

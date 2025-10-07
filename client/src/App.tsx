@@ -7,11 +7,14 @@ import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import { DeliveryModeProvider } from "@/context/DeliveryModeContext";
+import { WishlistProvider } from "@/context/WishlistContext";
+import { AddressBookProvider } from "@/context/AddressBookContext";
 import AdminRedirect from "@/components/AdminRedirect";
 import SellerRedirect from "@/components/SellerRedirect";
 import SellerRouteProtection from "@/components/SellerRouteProtection";
 import BuyerRedirect from "@/components/BuyerRedirect";
 import { lazy, Suspense } from "react";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 // Eager load: critical pages
 import Index from "./pages/Index";
@@ -37,6 +40,7 @@ const Profile = lazy(() => import("./pages/Profile"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const PaymentCancel = lazy(() => import("./pages/PaymentCancel"));
 const PaymentProcessing = lazy(() => import("./pages/PaymentProcessing"));
+const Wishlist = lazy(() => import("./pages/Wishlist"));
 
 // Optimized QueryClient configuration
 const queryClient = new QueryClient({
@@ -63,12 +67,15 @@ const App = () => (
       <TooltipProvider>
         <AuthProvider>
           <DeliveryModeProvider>
+            <WishlistProvider>
+            <AddressBookProvider>
             <CartProvider>
               <Toaster />
               <Sonner />
-              <BrowserRouter>
-                <Suspense fallback={<PageLoader />}>
-                  <Routes>
+              <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                <ErrorBoundary>
+                  <Suspense fallback={<PageLoader />}>
+                    <Routes>
                     <Route path="/" element={<Index />} />
                     <Route path="/auth/login" element={<Login />} />
                     <Route path="/auth/register" element={<Register />} />
@@ -87,15 +94,19 @@ const App = () => (
                     <Route path="/payment-success" element={<PaymentSuccess />} />
                     <Route path="/payment-cancel" element={<PaymentCancel />} />
                     <Route path="/payment-processing" element={<PaymentProcessing />} />
+                    <Route path="/wishlist" element={<BuyerRedirect><Wishlist /></BuyerRedirect>} />
                     <Route path="/buyer-dashboard" element={<BuyerRedirect><BuyerDashboard /></BuyerRedirect>} />
                     <Route path="/seller-dashboard" element={<SellerRedirect><SellerDashboard /></SellerRedirect>} />
                     <Route path="/admin-dashboard" element={<AdminRedirect><AdminDashboard /></AdminRedirect>} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </Suspense>
+                    </Routes>
+                  </Suspense>
+                </ErrorBoundary>
               </BrowserRouter>
             </CartProvider>
+            </AddressBookProvider>
+            </WishlistProvider>
           </DeliveryModeProvider>
         </AuthProvider>
       </TooltipProvider>

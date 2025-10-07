@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
+import { Link } from "react-router-dom";
+import { useCart } from "@/context/CartContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -47,6 +49,9 @@ const Browse = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [activeTab, setActiveTab] = useState<"shops" | "products">("shops");
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [inStockOnly, setInStockOnly] = useState(false);
+  const [minRating, setMinRating] = useState<number | null>(null);
+  const [compareIds, setCompareIds] = useState<string[]>([]);
   
   // Use custom hooks for data fetching
   const { shops, loading: shopsLoading, error: shopsError } = useShops({
@@ -64,6 +69,7 @@ const Browse = () => {
 
   const loading = activeTab === "shops" ? shopsLoading : productsLoading;
   const error = activeTab === "shops" ? shopsError : productsError;
+  const { addToCart } = useCart();
 
   const handleSearch = () => {
     // Trigger search by updating the dependencies
@@ -185,7 +191,7 @@ const Browse = () => {
                       />
                     </div>
 
-                    {/* Sort By */}
+                    {/* Sort By */
                     <div>
                       <label className="text-sm font-medium mb-3 block">Sort By</label>
                       <Select value={sortBy} onValueChange={setSortBy}>
@@ -199,6 +205,28 @@ const Browse = () => {
                           <SelectItem value="delivery-time">Fastest Delivery</SelectItem>
                           <SelectItem value="price-low">Price: Low to High</SelectItem>
                           <SelectItem value="price-high">Price: High to Low</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Availability & Rating */}
+                    <div>
+                      <label className="text-sm font-medium mb-3 block">Availability</label>
+                      <div className="flex items-center gap-2">
+                        <input id="instock" type="checkbox" checked={inStockOnly} onChange={(e) => setInStockOnly(e.target.checked)} />
+                        <label htmlFor="instock" className="text-sm">In stock only</label>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-3 block">Minimum Rating</label>
+                      <Select value={minRating ? String(minRating) : ''} onValueChange={(v) => setMinRating(v ? Number(v) : null)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Any" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">Any</SelectItem>
+                          <SelectItem value="3">3★ & up</SelectItem>
+                          <SelectItem value="4">4★ & up</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -292,12 +320,15 @@ const Browse = () => {
                       </div>
                     ) : (
                       shops.map((shop) => (
-                        <Card key={shop.id} className="overflow-hidden hover:shadow-strong hover:-translate-y-1 transition-all cursor-pointer border-primary/10 bg-gradient-to-br from-card to-muted/30 animate-fade-in">
+                        <Link key={shop.id} to={`/shops/${shop.id}`}>
+                        <Card className="overflow-hidden hover:shadow-strong hover:-translate-y-1 transition-all cursor-pointer border-primary/10 bg-gradient-to-br from-card to-muted/30 animate-fade-in">
                           <div className="relative">
                             <img
                               src={shop.imageUrl || "/images/shops/default-shop.jpg"}
                               alt={shop.name}
                               className="w-full h-48 object-cover group-hover:scale-105 transition-transform"
+                              loading="lazy"
+                              decoding="async"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 hover:opacity-100 transition-opacity" />
                             <Badge className="absolute top-3 left-3 bg-gradient-primary text-white shadow-soft">
@@ -333,6 +364,7 @@ const Browse = () => {
                             </div>
                           </CardContent>
                         </Card>
+                        </Link>
                       ))
                     )}
                   </div>
@@ -343,19 +375,28 @@ const Browse = () => {
                         <p className="text-muted-foreground">No products found matching your criteria.</p>
                       </div>
                     ) : (
-                      products.map((product) => (
+                      products
+                        .filter(p => !inStockOnly || p.inStock)
+                        .filter(p => {
+                          if (!minRating) return true;
+                          return true; // placeholder if rating exists later
+                        })
+                        .map((product) => (
                         <Card key={product.id} className="overflow-hidden hover:shadow-strong hover:-translate-y-1 transition-all cursor-pointer border-primary/10 bg-gradient-to-br from-card to-muted/30 animate-fade-in group">
                           <div className="relative overflow-hidden">
                             <img
                               src={product.imageUrl || "/images/products/default-product.jpg"}
                               alt={product.name}
                               className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300"
+                              loading="lazy"
+                              decoding="async"
+                              onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/products/default-product.jpg"; }}
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                           </div>
                           <CardContent className="p-4">
                             <div className="space-y-2">
-                              <h3 className="font-semibold">{product.name}</h3>
+                              <Link to={`/products/${product.id}`} className="font-semibold hover:text-primary transition-colors">{product.name}</Link>
                               <p className="text-sm text-muted-foreground">{(product as any).shops?.name || 'Shop'}</p>
                               
                               <div className="flex items-center gap-2">
@@ -369,9 +410,29 @@ const Browse = () => {
                                 )}
                               </div>
                               
-                              <Button className="w-full bg-gradient-primary hover:opacity-90 hover:scale-105 transition-all shadow-soft" size="sm">
-                                Add to Cart
-                              </Button>
+                              <div className="flex items-center justify-between">
+                                <Button className="bg-gradient-primary hover:opacity-90 hover:scale-105 transition-all shadow-soft" size="sm"
+                                  onClick={() => addToCart({
+                                    id: product.id,
+                                    name: product.name,
+                                    price: Number(product.price),
+                                    quantity: 1,
+                                    shopId: (product as any).shopId || 'unknown',
+                                    shopName: ((product as any).shops?.name) || 'Shop',
+                                    imageUrl: product.imageUrl || "/images/products/default-product.jpg",
+                                  })}
+                                >
+                                  Add to Cart
+                                </Button>
+                                <div className="flex items-center gap-2 text-xs">
+                                  <input
+                                    type="checkbox"
+                                    checked={compareIds.includes(product.id)}
+                                    onChange={(e) => setCompareIds(prev => e.target.checked ? [...prev, product.id] : prev.filter(id => id !== product.id))}
+                                  />
+                                  <span>Compare</span>
+                                </div>
+                              </div>
                             </div>
                           </CardContent>
                         </Card>
@@ -384,6 +445,20 @@ const Browse = () => {
           </div>
         </div>
       </div>
+      {compareIds.length > 0 && (
+        <div className="fixed bottom-4 inset-x-4 md:inset-x-auto md:right-4 md:w-[420px] p-3 rounded-xl border bg-background shadow-strong">
+          <div className="flex items-center justify-between">
+            <p className="font-semibold text-sm">Compare products ({compareIds.length})</p>
+            <Button variant="ghost" size="sm" onClick={() => setCompareIds([])}>Clear</Button>
+          </div>
+          <div className="text-xs text-muted-foreground mt-1">Open each in new tab to compare specs.</div>
+          <div className="flex gap-2 mt-2 overflow-x-auto">
+            {compareIds.map(id => (
+              <Link key={id} to={`/products/${id}`} className="px-2 py-1 rounded border text-xs hover:bg-muted">#{id}</Link>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

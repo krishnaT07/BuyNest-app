@@ -9,7 +9,8 @@ import { ORDER_STATUS_LABELS } from "@/lib/constants";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import LocationTracker from "@/components/LocationTracker";
-import { Package, Clock, CheckCircle, XCircle, MapPin, Phone } from "lucide-react";
+import { Package, Clock, CheckCircle, XCircle, MapPin, Phone, ShoppingCart } from "lucide-react";
+import { useCart } from "@/context/CartContext";
 
 interface Order {
   id: string;
@@ -30,6 +31,7 @@ interface Order {
 const Orders = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { addToCart, clearCart } = useCart();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
@@ -46,10 +48,7 @@ const Orders = () => {
       
       const { data, error } = await supabase
         .from('orders')
-        .select(`
-          *,
-          shops(name)
-        `)
+        .select('*')
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
 
@@ -57,7 +56,7 @@ const Orders = () => {
 
       const formattedOrders = data?.map(order => ({
         ...order,
-        shop_name: order.shops?.name || 'Unknown Shop',
+        shop_name: (order as any).shop_name || 'Shop',
       })) || [];
 
       setOrders(formattedOrders);
@@ -95,6 +94,22 @@ const Orders = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const reorder = (order: Order) => {
+    clearCart();
+    order.items.forEach((item: any) => {
+      addToCart({
+        id: item.product_id || item.id,
+        name: item.name,
+        price: Number(item.price),
+        quantity: Number(item.quantity) || 1,
+        shopId: order.shop_id,
+        shopName: order.shop_name || 'Shop',
+        imageUrl: item.image_url || "/images/products/default-product.jpg",
+      });
+    });
+    toast({ title: 'Items added to cart', description: 'Review your cart before checkout.' });
   };
 
   const getStatusIcon = (status: string) => {
@@ -259,8 +274,8 @@ const Orders = () => {
                         )}
                         
                         {order.status === 'delivered' && (
-                          <Button variant="outline" size="sm">
-                            Reorder
+                          <Button variant="outline" size="sm" onClick={() => reorder(order)}>
+                            <ShoppingCart className="w-4 h-4 mr-1" /> Reorder
                           </Button>
                         )}
                       </div>

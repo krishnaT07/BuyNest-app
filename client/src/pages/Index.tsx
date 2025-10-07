@@ -3,6 +3,8 @@ import Hero from "@/components/Hero";
 import RoleSelection from "@/components/RoleSelection";
 import FeaturedShops from "@/components/FeaturedShops";
 import { useAuth } from "@/context/AuthContext";
+import { Link } from "react-router-dom";
+import RecentlyViewedCarousel from "@/components/RecentlyViewedCarousel";
 import { useNavigate } from "react-router-dom";
 import { memo, useCallback } from "react";
 
@@ -68,6 +70,11 @@ const Index = () => {
       {/* Footer */}
       <footer id="contact" className="bg-muted/20 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Recently viewed */}
+          <div className="mb-16">
+            <h3 className="text-2xl font-bold mb-4">Recently Viewed</h3>
+            <RecentlyViewedCarousel />
+          </div>
           <div className="text-center space-y-4">
             <h2 className="text-2xl font-bold">Ready to Start?</h2>
             <p className="text-muted-foreground">

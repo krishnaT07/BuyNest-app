@@ -7,6 +7,8 @@ import { Link } from "react-router-dom";
 
 const Cart = () => {
   const { items, totalItems, totalPrice, updateQuantity, removeFromCart, getCartByShop } = useCart();
+  const freeShippingThreshold = 999; // ₹999 for free delivery
+  const progress = Math.min(100, Math.round((totalPrice / freeShippingThreshold) * 100));
 
   if (items.length === 0) {
     return (
@@ -42,6 +44,13 @@ const Cart = () => {
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Free shipping progress */}
+            <div className="p-4 rounded border bg-muted/30">
+              <p className="text-sm mb-2">{totalPrice >= freeShippingThreshold ? 'You unlocked free delivery!' : `Add ${formatCurrency(Math.max(0, freeShippingThreshold - totalPrice))} more for free delivery`}</p>
+              <div className="h-2 rounded bg-muted">
+                <div className="h-2 bg-primary rounded" style={{ width: `${progress}%` }} />
+              </div>
+            </div>
             {Object.entries(cartByShop).map(([shopId, shopItems]) => (
               <Card key={shopId}>
                 <CardHeader>

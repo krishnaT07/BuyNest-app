@@ -10,6 +10,7 @@ import { Product, Shop } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/context/CartContext";
 import { Minus, Plus, ShoppingCart, Store, Star, Truck } from "lucide-react";
+import { useEffect as useReactEffect, useState as useReactState } from "react";
 
 const ProductDetails = () => {
   const { productId } = useParams();
@@ -19,6 +20,8 @@ const ProductDetails = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const { addToCart } = useCart();
+  const [reviews, setReviews] = useReactState<{name: string; rating: number; comment: string;}[]>([]);
+  const [reviewForm, setReviewForm] = useReactState({ name: '', rating: 5, comment: '' });
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -81,6 +84,23 @@ const ProductDetails = () => {
 
     fetchProductDetails();
   }, [productId, toast]);
+
+  // Recently viewed tracking (localStorage)
+  useReactEffect(() => {
+    if (productId) {
+      const raw = localStorage.getItem('buynest_recent');
+      const arr = raw ? (JSON.parse(raw) as string[]) : [];
+      const next = [productId, ...arr.filter(id => id !== productId)].slice(0, 12);
+      localStorage.setItem('buynest_recent', JSON.stringify(next));
+    }
+  }, [productId]);
+
+  const submitReview = () => {
+    if (!reviewForm.name.trim() || !reviewForm.comment.trim()) return;
+    setReviews(prev => [{ name: reviewForm.name, rating: Number(reviewForm.rating), comment: reviewForm.comment }, ...prev]);
+    setReviewForm({ name: '', rating: 5, comment: '' });
+    toast({ title: 'Review submitted', description: 'Thanks for your feedback!' });
+  };
 
   const handleAddToCart = () => {
     if (product && shop) {
@@ -276,6 +296,53 @@ const ProductDetails = () => {
                 </CardContent>
               </Card>
             )}
+          </div>
+        </div>
+        {/* Reviews */}
+        <div className="mt-10 grid lg:grid-cols-2 gap-8">
+          <Card>
+            <CardContent className="p-4 space-y-3">
+              <h3 className="font-semibold text-lg">Write a Review</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <Input placeholder="Your name" value={reviewForm.name} onChange={(e) => setReviewForm({ ...reviewForm, name: e.target.value })} />
+                <Input type="number" min={1} max={5} placeholder="Rating (1-5)" value={reviewForm.rating} onChange={(e) => setReviewForm({ ...reviewForm, rating: Number(e.target.value) })} />
+              </div>
+              <Textarea placeholder="Your review" value={reviewForm.comment} onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })} />
+              <Button onClick={submitReview}>Submit Review</Button>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 space-y-3">
+              <h3 className="font-semibold text-lg">Customer Reviews</h3>
+              {reviews.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No reviews yet.</p>
+              ) : (
+                <div className="space-y-3">
+                  {reviews.map((r, idx) => (
+                    <div key={idx} className="p-3 rounded border">
+                      <div className="flex items-center justify-between">
+                        <p className="font-medium">{r.name}</p>
+                        <div className="flex items-center gap-1 text-yellow-500 text-sm">{Array.from({ length: r.rating }).map((_, i) => '★')}</div>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1">{r.comment}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Related products (mock) */}
+        <div className="mt-12">
+          <h3 className="text-xl font-semibold mb-4">Related Products</h3>
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {[1,2,3].map((i) => (
+              <Link key={i} to={`/products/${(product.id || 'p') + '-' + i}`} className="p-3 rounded border hover:bg-muted/30">
+                <div className="aspect-square bg-muted rounded mb-2" />
+                <p className="text-sm">You might also like #{i}</p>
+              </Link>
+            ))}
           </div>
         </div>
       </div>

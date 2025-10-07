@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Product } from "@/types";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/hooks/use-toast";
-import { ShoppingCart, Plus } from "lucide-react";
+import { ShoppingCart, Plus, Heart } from "lucide-react";
+import { useWishlist } from "@/context/WishlistContext";
 
 interface ProductCardProps {
   product: Product;
@@ -17,6 +18,7 @@ const ProductCard = ({ product, shopName }: ProductCardProps) => {
   const [isAdding, setIsAdding] = useState(false);
   const { addToCart } = useCart();
   const { toast } = useToast();
+  const { isInWishlist, toggleWishlist } = useWishlist();
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent navigation when clicking the button
@@ -111,9 +113,13 @@ const ProductCard = ({ product, shopName }: ProductCardProps) => {
                 )}
               </div>
               
-              <Badge variant="secondary" className="text-xs">
-                {product.category}
-              </Badge>
+              <button
+                aria-label="Toggle wishlist"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist({ id: product.id, name: product.name, imageUrl: product.imageUrl, price: product.price }); }}
+                className={`p-1 rounded ${isInWishlist(product.id) ? 'text-red-500' : 'text-muted-foreground hover:text-foreground'}`}
+              >
+                <Heart className="h-4 w-4" />
+              </button>
             </div>
           </div>
         </CardContent>
