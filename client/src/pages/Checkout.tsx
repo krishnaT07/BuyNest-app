@@ -43,10 +43,11 @@ const Checkout = () => {
       return;
     }
 
-    if (!deliveryAddress.trim() || !phoneNumber.trim()) {
+    const needsAddress = deliveryMode !== 'pickup';
+    if ((needsAddress && !deliveryAddress.trim()) || !phoneNumber.trim()) {
       toast({
         title: "Missing Information",
-        description: "Please fill in your delivery address and phone number.",
+        description: needsAddress ? "Please fill in your delivery address and phone number." : "Please enter your phone number.",
         variant: "destructive",
       });
       return;
@@ -55,12 +56,11 @@ const Checkout = () => {
     setLoading(true);
 
     try {
-      // Create orders for each shop
-      for (const shopId of shopIds) {
+      // Prepare per-shop orders
+      const orderPayloads = shopIds.map((shopId) => {
         const shopItems = cartByShop[shopId];
         const shopTotal = shopItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-        const orderData = {
+        return {
           user_id: user.id,
           shop_id: shopId,
           items: shopItems.map(item => ({
@@ -72,50 +72,47 @@ const Checkout = () => {
           })),
           total_amount: shopTotal,
           status: 'pending',
-          delivery_address: deliveryAddress,
+          delivery_address: needsAddress ? deliveryAddress : 'Pickup at shop',
           phone_number: phoneNumber,
           notes: notes || null,
           estimated_delivery_time: deliveryMode === 'pickup' ? 'Ready for pickup' : '30-45 minutes',
           payment_method: paymentMethod,
           delivery_mode: deliveryMode,
         };
-
-        if (paymentMethod === 'card') {
-          // For card payments, create Stripe checkout session
-          const { data, error } = await supabase.functions.invoke('create-payment', {
-            body: {
-              amount: Math.round(shopTotal * 100), // Convert to cents
-              currency: 'usd',
-              orderData,
-            },
-          });
-
-          if (error) throw error;
-
-          if (data?.url) {
-            // Open Stripe checkout in a new tab
-            window.open(data.url, '_blank');
-          }
-        } else {
-          // For cash payments, create order directly
-          const { error } = await supabase
-            .from('orders')
-            .insert(orderData);
-
-          if (error) throw error;
-        }
-      }
-
-      clearCart();
-      
-      toast({
-        title: "Order Placed!",
-        description: paymentMethod === 'card' 
-          ? "Payment window opened. Complete payment to confirm your order."
-          : "Your order has been placed successfully!",
       });
 
-      navigate(paymentMethod === 'card' ? '/payment-processing' : '/orders');
+      if (paymentMethod === 'card') {
+        // Single Stripe session for all shops combined
+        const totalCents = Math.round(totalPrice * 100);
+        const { data, error } = await supabase.functions.invoke('create-payment', {
+          body: {
+            amount: totalCents,
+            currency: 'usd',
+            orders: orderPayloads,
+          },
+        });
+
+        if (error) throw error;
+        if (data?.url) {
+          clearCart();
+          window.location.href = data.url; // redirect in same tab
+          return;
+        }
+        throw new Error('Payment session could not be created');
+      }
+
+      // Cash on delivery: create orders directly (one per shop)
+      const { error: insertError } = await supabase
+        .from('orders')
+        .insert(orderPayloads);
+      if (insertError) throw insertError;
+
+      clearCart();
+      toast({
+        title: "Order Placed!",
+        description: "Your order has been placed successfully!",
+      });
+      navigate('/orders');
 
     } catch (error) {
       console.error('Order placement error:', error);
@@ -199,9 +196,12 @@ const Checkout = () => {
                       <div key={item.id} className="flex justify-between items-center py-2">
                         <div className="flex items-center gap-3">
                           <img
-                            src={item.imageUrl}
+                            src={item.imageUrl || "/images/products/default-product.jpg"}
                             alt={item.name}
                             className="w-12 h-12 rounded-lg object-cover"
+                            loading="lazy"
+                            decoding="async"
+                            onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/products/default-product.jpg"; }}
                           />
                           <div>
                             <p className="font-medium">{item.name}</p>

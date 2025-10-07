@@ -60,9 +60,12 @@ const ProductCard = ({ product, shopName }: ProductCardProps) => {
         <div className="relative">
           <div className="aspect-square bg-gray-100 overflow-hidden rounded-t-lg">
             <img
-              src={product.imageUrl}
+              src={product.imageUrl || "/images/products/default-product.jpg"}
               alt={product.name}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+              loading="lazy"
+              decoding="async"
+              onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/products/default-product.jpg"; }}
             />
           </div>
           {discountPercentage > 0 && (

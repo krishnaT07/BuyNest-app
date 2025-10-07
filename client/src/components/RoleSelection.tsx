@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ShoppingCart, Store, Shield, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const RoleSelection = () => {
   const roles = [
@@ -29,6 +30,8 @@ const RoleSelection = () => {
       href: "/admin-dashboard"
     }
   ];
+
+  const navigate = useNavigate();
 
   return (
     <section id="features" className="py-20 bg-muted/20">
@@ -69,7 +72,7 @@ const RoleSelection = () => {
                   <Button 
                     variant={role.color === "primary" ? "hero" : role.color === "accent" ? "accent" : "default"}
                     className="w-full"
-                    onClick={() => window.location.href = role.href}
+                    onClick={() => navigate(role.href)}
                   >
                     Get Started
                     <ArrowRight className="w-4 h-4 ml-2" />

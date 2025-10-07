@@ -3,10 +3,12 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ShoppingBag, MapPin, Menu, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
@@ -37,10 +39,10 @@ const Navbar = () => {
 
           {!user && (
             <div className="hidden md:flex items-center space-x-4">
-              <Button variant="ghost" size="sm" onClick={() => (window.location.href = '/auth/login')}>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/auth/login')}>
                 Sign In
               </Button>
-              <Button variant="hero" size="sm" onClick={() => (window.location.href = '/auth/register')}>
+              <Button variant="hero" size="sm" onClick={() => navigate('/auth/register')}>
                 Get Started
               </Button>
             </div>
@@ -74,10 +76,10 @@ const Navbar = () => {
             </a>
             {!user && (
               <div className="pt-4 pb-2 space-y-2">
-                <Button variant="ghost" className="w-full justify-start" onClick={() => (window.location.href = '/auth/login')}>
+                <Button variant="ghost" className="w-full justify-start" onClick={() => navigate('/auth/login')}>
                   Sign In
                 </Button>
-                <Button variant="hero" className="w-full justify-start" onClick={() => (window.location.href = '/auth/register')}>
+                <Button variant="hero" className="w-full justify-start" onClick={() => navigate('/auth/register')}>
                   Get Started
                 </Button>
               </div>

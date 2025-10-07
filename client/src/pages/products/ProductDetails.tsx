@@ -149,9 +149,12 @@ const ProductDetails = () => {
           <div className="space-y-4">
             <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
               <img
-                src={product.imageUrl}
+                src={product.imageUrl || "/images/products/default-product.jpg"}
                 alt={product.name}
                 className="w-full h-full object-cover"
+                loading="lazy"
+                decoding="async"
+                onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/products/default-product.jpg"; }}
               />
             </div>
           </div>

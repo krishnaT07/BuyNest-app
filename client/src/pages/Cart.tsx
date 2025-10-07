@@ -53,9 +53,12 @@ const Cart = () => {
                   {shopItems.map((item) => (
                     <div key={item.id} className="flex items-center space-x-4 py-2">
                       <img
-                        src={item.imageUrl}
+                        src={item.imageUrl || "/images/products/default-product.jpg"}
                         alt={item.name}
                         className="w-16 h-16 rounded-lg object-cover"
+                        loading="lazy"
+                        decoding="async"
+                        onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/products/default-product.jpg"; }}
                       />
                       
                       <div className="flex-1">

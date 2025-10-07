@@ -36,6 +36,7 @@ const Orders = lazy(() => import("./pages/Orders"));
 const Profile = lazy(() => import("./pages/Profile"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const PaymentCancel = lazy(() => import("./pages/PaymentCancel"));
+const PaymentProcessing = lazy(() => import("./pages/PaymentProcessing"));
 
 // Optimized QueryClient configuration
 const queryClient = new QueryClient({
@@ -85,6 +86,7 @@ const App = () => (
                     <Route path="/profile" element={<BuyerRedirect><Profile /></BuyerRedirect>} />
                     <Route path="/payment-success" element={<PaymentSuccess />} />
                     <Route path="/payment-cancel" element={<PaymentCancel />} />
+                    <Route path="/payment-processing" element={<PaymentProcessing />} />
                     <Route path="/buyer-dashboard" element={<BuyerRedirect><BuyerDashboard /></BuyerRedirect>} />
                     <Route path="/seller-dashboard" element={<SellerRedirect><SellerDashboard /></SellerRedirect>} />
                     <Route path="/admin-dashboard" element={<AdminRedirect><AdminDashboard /></AdminRedirect>} />
