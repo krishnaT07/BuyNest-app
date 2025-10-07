@@ -77,28 +77,44 @@ const Checkout = () => {
           notes: notes || null,
           estimated_delivery_time: deliveryMode === 'pickup' ? 'Ready for pickup' : '30-45 minutes',
           payment_method: paymentMethod,
-          delivery_mode: deliveryMode,
         };
       });
 
       if (paymentMethod === 'card') {
         // Single Stripe session for all shops combined
         const totalCents = Math.round(totalPrice * 100);
-        const { data, error } = await supabase.functions.invoke('create-payment', {
-          body: {
-            amount: totalCents,
-            currency: 'usd',
-            orders: orderPayloads,
-          },
-        });
+        try {
+          const { data, error } = await supabase.functions.invoke('create-payment', {
+            body: {
+              amount: totalCents,
+              currency: 'usd',
+              orders: orderPayloads,
+            },
+          });
 
-        if (error) throw error;
-        if (data?.url) {
+          if (error) throw error;
+          if (data?.url) {
+            clearCart();
+            window.location.href = data.url; // redirect in same tab
+            return;
+          }
+          throw new Error('Payment session could not be created');
+        } catch (err) {
+          // Fallback: create pending card orders directly
+          const pendingOrders = orderPayloads.map(o => ({ ...o, payment_method: 'card_pending' }));
+          const { error: insertFallbackError } = await supabase
+            .from('orders')
+            .insert(pendingOrders);
+          if (insertFallbackError) throw insertFallbackError;
+
           clearCart();
-          window.location.href = data.url; // redirect in same tab
+          toast({
+            title: 'Payment Pending',
+            description: 'We could not initiate card payment due to a network issue. Your orders were created as pending. You can complete payment with the shop.',
+          });
+          navigate('/orders');
           return;
         }
-        throw new Error('Payment session could not be created');
       }
 
       // Cash on delivery: create orders directly (one per shop)

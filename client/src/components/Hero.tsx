@@ -78,7 +78,7 @@ const Hero = () => {
                 alt="Local shopping experience"
                 className="w-full h-auto"
                 decoding="async"
-                fetchPriority="high"
+                fetchpriority="high"
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 srcSet={`${heroImage} 1200w`}
               />
