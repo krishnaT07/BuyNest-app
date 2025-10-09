@@ -177,37 +177,38 @@ const Browse = () => {
                     </div>
 
                     {/* Price Range */}
-                    <div>
-                      <label className="text-sm font-medium mb-3 block">
-                        Price Range: {formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}
-                      </label>
-                      <Slider
-                        value={priceRange}
-                        onValueChange={setPriceRange}
-                        max={10000}
-                        min={0}
-                        step={100}
-                        className="w-full"
-                      />
-                    </div>
+<div>
+  <label className="text-sm font-medium mb-3 block">
+    Price Range: {formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}
+  </label>
+  <Slider
+    value={priceRange}
+    onValueChange={setPriceRange}
+    max={10000}
+    min={0}
+    step={100}
+    className="w-full"
+  />
+</div>
 
-                    {/* Sort By */
-                    <div>
-                      <label className="text-sm font-medium mb-3 block">Sort By</label>
-                      <Select value={sortBy} onValueChange={setSortBy}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="relevance">Relevance</SelectItem>
-                          <SelectItem value="rating">Highest Rated</SelectItem>
-                          <SelectItem value="distance">Nearest First</SelectItem>
-                          <SelectItem value="delivery-time">Fastest Delivery</SelectItem>
-                          <SelectItem value="price-low">Price: Low to High</SelectItem>
-                          <SelectItem value="price-high">Price: High to Low</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+{/* Sort By */}
+<div>
+  <label className="text-sm font-medium mb-3 block">Sort By</label>
+  <Select value={sortBy} onValueChange={setSortBy}>
+    <SelectTrigger>
+      <SelectValue />
+    </SelectTrigger>
+    <SelectContent>
+      <SelectItem value="relevance">Relevance</SelectItem>
+      <SelectItem value="rating">Highest Rated</SelectItem>
+      <SelectItem value="distance">Nearest First</SelectItem>
+      <SelectItem value="delivery-time">Fastest Delivery</SelectItem>
+      <SelectItem value="price-low">Price: Low to High</SelectItem>
+      <SelectItem value="price-high">Price: High to Low</SelectItem>
+    </SelectContent>
+  </Select>
+</div>
+
 
                     {/* Availability & Rating */}
                     <div>
