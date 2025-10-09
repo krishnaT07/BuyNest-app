@@ -1,3 +1,4 @@
+"use client";
 import{c as h,r as n,u as f,d as b,j as e,a as w,S as v,b as d,e as c,I as m,B as y,s as j}from"./index-C7_V5JWq.js";/**
  * @license lucide-react v0.462.0 - ISC
  *

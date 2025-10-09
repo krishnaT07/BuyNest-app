@@ -1,3 +1,4 @@
+"use client";
 import{c as re,af as Te,q as ue,r as l,G as me,j as e,v as z,t as O,_ as Be,P as A,Q as Le,O as Ve,a1 as he,K as ze,H as Oe,w as He,a0 as Ke,ag as Fe,ah as $e,ai as Ue,a5 as Ge,B as k,T as qe,aj as Ye,I as Qe,i as Y,k as Xe,l as We,ak as Je,n as Q,a9 as X,aa as W,ab as J,ac as Z,ad as R,L as ee,f as de,o as Ze,p as et,g as tt}from"./index-C7_V5JWq.js";import{H as st}from"./Header-LcFRmaEJ.js";import{u as nt}from"./useProducts-Ccz9LixC.js";import{S as rt}from"./search-Dc1MRoi3.js";import"./index-Mkei7zYV.js";import"./settings-JGNURzKf.js";/**
  * @license lucide-react v0.462.0 - ISC
  *

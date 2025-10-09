@@ -1,3 +1,4 @@
+"use client";
 import{c as k,U as L,u as B,av as M,r as m,j as e,i as j,k as v,l as f,f as U,n as g,ay as D,au as T,B as r,aA as V,b as i,I as N,M as z,V as R,g as q,s as H,aB as K}from"./index-C7_V5JWq.js";import{T as Y}from"./textarea-B3eKeinw.js";import{S as J}from"./separator-DHEMzE8V.js";import{A as W,c as X,b as Z,S as $,a as G}from"./avatar-MlZcFUsK.js";import{L as O}from"./LocationInput-C6dYuTVz.js";import"./navigation-DQJChiP-.js";/**
  * @license lucide-react v0.462.0 - ISC
  *

@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import { MapPin, ShoppingBag, Truck, Users } from "lucide-react";
 import heroImage from "@/assets/hero-image.jpg";
