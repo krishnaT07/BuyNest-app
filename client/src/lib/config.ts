@@ -38,7 +38,7 @@ const configs: Record<string, Partial<AppConfig>> = {
   development: {
     app: {
       environment: 'development',
-      baseUrl: 'http://localhost:8080',
+      baseUrl: 'https://buynestweb.netlify.app',
     },
     features: {
       enablePayments: true,
@@ -50,7 +50,7 @@ const configs: Record<string, Partial<AppConfig>> = {
   production: {
     app: {
       environment: 'production',
-      baseUrl: 'https://your-domain.com',
+      baseUrl: 'https://buynestweb.netlify.app',
     },
     features: {
       enablePayments: true,
@@ -84,7 +84,7 @@ const baseConfig: AppConfig = {
     name: "BuyNest",
     version: "1.0.0",
     environment: 'development',
-    baseUrl: 'http://localhost:8080',
+    baseUrl: 'https://buynestweb.netlify.app',
   },
   features: {
     enablePayments: true,
