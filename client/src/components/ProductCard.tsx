@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,7 @@ const ProductCard = ({ product, shopName }: ProductCardProps) => {
   const { toast } = useToast();
   const { isInWishlist, toggleWishlist } = useWishlist();
 
-  const handleAddToCart = async (e: React.MouseEvent) => {
+  const handleAddToCart = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent navigation when clicking the button
     e.stopPropagation();
     
@@ -51,7 +51,11 @@ const ProductCard = ({ product, shopName }: ProductCardProps) => {
     } finally {
       setIsAdding(false);
     }
-  };
+  }, [product, shopName, addToCart, toast]);
+
+  const handleImageError = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
+    e.currentTarget.src = "/images/products/default-product.jpg";
+  }, []);
 
   const discountPercentage = product.originalPrice 
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
@@ -68,7 +72,7 @@ const ProductCard = ({ product, shopName }: ProductCardProps) => {
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
               loading="lazy"
               decoding="async"
-              onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/products/default-product.jpg"; }}
+              onError={handleImageError}
             />
           </div>
           {discountPercentage > 0 && (

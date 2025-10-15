@@ -85,10 +85,10 @@ const App = () => (
                     <Route path="/shops/register" element={<RegisterShop />} />
                     <Route path="/products/:productId" element={<ProductDetails />} />
                     <Route path="/products/new" element={<NewProduct />} />
-                    <Route path="/browse" element={<SellerRouteProtection><Browse /></SellerRouteProtection>} />
-                    <Route path="/search" element={<SellerRouteProtection><Browse /></SellerRouteProtection>} />
-                    <Route path="/cart" element={<SellerRouteProtection><Cart /></SellerRouteProtection>} />
-                    <Route path="/checkout" element={<SellerRouteProtection><Checkout /></SellerRouteProtection>} />
+                    <Route path="/browse" element={<Browse />} />
+                    <Route path="/search" element={<Browse />} />
+                    <Route path="/cart" element={<Cart />} />
+                    <Route path="/checkout" element={<Checkout />} />
                     <Route path="/orders" element={<BuyerRedirect><Orders /></BuyerRedirect>} />
                     <Route path="/profile" element={<BuyerRedirect><Profile /></BuyerRedirect>} />
                     <Route path="/payment-success" element={<PaymentSuccess />} />
