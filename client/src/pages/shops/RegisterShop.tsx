@@ -102,7 +102,8 @@ const RegisterShop = () => {
         description: "Your shop has been submitted for admin approval. You'll be notified once it's approved.",
       });
       
-      navigate("/dashboard/seller");
+      // Navigate to dashboard with success state
+      navigate("/seller-dashboard?registered=true");
     } catch (error: any) {
       console.error('Shop registration error:', error);
       toast({

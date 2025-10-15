@@ -42,6 +42,8 @@ export interface Product {
   category: string;
   imageUrl: string;
   inStock: boolean;
+  stockQuantity?: number;
+  isActive?: boolean;
   shopId: string;
   sku?: string;
   weight?: string;

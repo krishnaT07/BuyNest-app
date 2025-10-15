@@ -98,6 +98,31 @@ const App = () => (
                     <Route path="/buyer-dashboard" element={<BuyerRedirect><BuyerDashboard /></BuyerRedirect>} />
                     <Route path="/seller-dashboard" element={<SellerRedirect><SellerDashboard /></SellerRedirect>} />
                     <Route path="/admin-dashboard" element={<AdminRedirect><AdminDashboard /></AdminRedirect>} />
+                    
+                    {/* Admin Routes */}
+                    <Route path="/admin/users" element={<AdminRedirect><NotFound /></AdminRedirect>} />
+                    <Route path="/admin/shops" element={<AdminRedirect><NotFound /></AdminRedirect>} />
+                    <Route path="/admin/products" element={<AdminRedirect><NotFound /></AdminRedirect>} />
+                    <Route path="/admin/orders" element={<AdminRedirect><NotFound /></AdminRedirect>} />
+                    <Route path="/admin/analytics" element={<AdminRedirect><NotFound /></AdminRedirect>} />
+                    <Route path="/admin/settings" element={<AdminRedirect><NotFound /></AdminRedirect>} />
+                    
+                    {/* Seller Routes */}
+                    <Route path="/seller/shop" element={<SellerRedirect><NotFound /></SellerRedirect>} />
+                    <Route path="/seller/products" element={<SellerRedirect><NotFound /></SellerRedirect>} />
+                    <Route path="/seller/orders" element={<SellerRedirect><NotFound /></SellerRedirect>} />
+                    <Route path="/seller/analytics" element={<SellerRedirect><NotFound /></SellerRedirect>} />
+                    <Route path="/seller/settings" element={<SellerRedirect><NotFound /></SellerRedirect>} />
+                    
+                    {/* Buyer Routes */}
+                    <Route path="/shops" element={<BuyerRedirect><NotFound /></BuyerRedirect>} />
+                    <Route path="/buyer/orders" element={<BuyerRedirect><NotFound /></BuyerRedirect>} />
+                    <Route path="/buyer/wishlist" element={<BuyerRedirect><NotFound /></BuyerRedirect>} />
+                    <Route path="/buyer/notifications" element={<BuyerRedirect><NotFound /></BuyerRedirect>} />
+                    <Route path="/buyer/addresses" element={<BuyerRedirect><NotFound /></BuyerRedirect>} />
+                    <Route path="/buyer/payments" element={<BuyerRedirect><NotFound /></BuyerRedirect>} />
+                    <Route path="/help" element={<NotFound />} />
+                    
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                     </Routes>

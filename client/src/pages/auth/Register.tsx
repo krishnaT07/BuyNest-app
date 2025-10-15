@@ -179,7 +179,7 @@ const Register = () => {
             <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.02] z-0" />
             <img 
               src={authHeroImage} 
-              alt="ShopLocal Premium Shopping" 
+              alt="BuyNest Premium Shopping" 
               className="absolute inset-0 w-full h-full object-cover opacity-50 z-0"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/60 to-transparent z-[1]" />
@@ -188,7 +188,7 @@ const Register = () => {
               <div className="space-y-6 max-w-lg animate-fade-in">
                 <div className="inline-flex items-center gap-3 px-5 py-2.5 bg-background/80 backdrop-blur-xl rounded-full border border-border/50 shadow-elegant">
                   <Store className="h-5 w-5 text-primary" />
-                  <span className="font-bold text-lg bg-gradient-primary bg-clip-text text-transparent">ShopLocal</span>
+                  <span className="font-bold text-lg bg-gradient-primary bg-clip-text text-transparent">BuyNest</span>
                 </div>
                 
                 <h2 className="text-5xl font-bold leading-tight text-foreground">
@@ -285,7 +285,7 @@ const Register = () => {
           <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.02] z-0" />
           <img 
             src={authHeroImage} 
-            alt="ShopLocal Premium Shopping" 
+            alt="BuyNest Premium Shopping" 
             className="absolute inset-0 w-full h-full object-cover opacity-50 z-0"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/60 to-transparent z-[1]" />
@@ -294,7 +294,7 @@ const Register = () => {
             <div className="space-y-6">
               <div className="inline-flex items-center gap-3 px-5 py-2.5 bg-background/80 backdrop-blur-xl rounded-full border border-border/50 shadow-elegant">
                 <Store className="h-5 w-5 text-primary" />
-                <span className="font-bold text-lg bg-gradient-primary bg-clip-text text-transparent">ShopLocal</span>
+                <span className="font-bold text-lg bg-gradient-primary bg-clip-text text-transparent">BuyNest</span>
               </div>
               
               <div className="space-y-6 max-w-lg animate-fade-in">
@@ -341,7 +341,7 @@ const Register = () => {
                 Create Account
               </h2>
               <p className="text-muted-foreground text-lg">
-                Join ShopLocal and start shopping
+                Join BuyNest and start shopping
               </p>
             </div>
 

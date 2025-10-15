@@ -112,6 +112,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
 
       setUser(mapped);
+      
+      // Redirect to appropriate dashboard after successful login
+      if (currentSession && typeof window !== 'undefined') {
+        const currentPath = window.location.pathname;
+        // Only redirect if we're on login page or home page
+        if (currentPath === '/auth/login' || currentPath === '/') {
+          setTimeout(() => {
+            switch (effectiveRole) {
+              case 'admin':
+                window.location.href = '/admin-dashboard';
+                break;
+              case 'seller':
+                window.location.href = '/seller-dashboard';
+                break;
+              case 'buyer':
+              default:
+                window.location.href = '/browse';
+                break;
+            }
+          }, 100);
+        }
+      }
     } catch (e) {
       // Silent fail; keep user null
       console.error("Failed to load profile/roles", e);

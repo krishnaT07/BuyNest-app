@@ -54,6 +54,8 @@ export const useSellerProducts = () => {
         category: product.category || '',
         imageUrl: product.image_url || '',
         inStock: product.in_stock ?? true,
+        stockQuantity: product.stock_quantity || 0,
+        isActive: product.is_active ?? true,
         shopId: product.shop_id,
         sku: product.sku || '',
         weight: product.weight || '',
@@ -175,6 +177,41 @@ export const useSellerProducts = () => {
     fetchProducts();
   }, [user]);
 
+  const updateStock = async (productId: string, stockQuantity: number) => {
+    try {
+      const { error } = await supabase
+        .from('products')
+        .update({ 
+          stock_quantity: stockQuantity,
+          in_stock: stockQuantity > 0
+        })
+        .eq('id', productId);
+
+      if (error) throw error;
+      
+      await fetchProducts(); // Refresh products
+    } catch (error) {
+      console.error('Error updating stock:', error);
+      throw error;
+    }
+  };
+
+  const toggleProductStatus = async (productId: string, isActive: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('products')
+        .update({ is_active: isActive })
+        .eq('id', productId);
+
+      if (error) throw error;
+      
+      await fetchProducts(); // Refresh products
+    } catch (error) {
+      console.error('Error toggling product status:', error);
+      throw error;
+    }
+  };
+
   return {
     products,
     loading,
@@ -182,6 +219,8 @@ export const useSellerProducts = () => {
     createProduct,
     updateProduct,
     deleteProduct,
+    updateStock,
+    toggleProductStatus,
     refetch: fetchProducts,
   };
 };

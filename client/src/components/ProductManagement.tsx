@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { useSellerProducts } from "@/hooks/useSellerProducts";
+import { useSellerShop } from "@/hooks/useSellerShop";
+import { Switch } from "@/components/ui/switch";
 import { 
   Plus, 
   Search, 
@@ -33,15 +35,20 @@ import {
 
 const ProductManagement = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const { products, loading, error, deleteProduct } = useSellerProducts();
+  const [editingStock, setEditingStock] = useState<string | null>(null);
+  const [stockValue, setStockValue] = useState<number>(0);
+  const { products, loading, error, deleteProduct, updateStock, toggleProductStatus } = useSellerProducts();
+  const { shop, loading: shopLoading } = useSellerShop();
   const { toast } = useToast();
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredProducts = useMemo(() => 
+    products.filter(product =>
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.category.toLowerCase().includes(searchQuery.toLowerCase())
+    ), [products, searchQuery]
   );
 
-  const handleDelete = async (productId: string, productName: string) => {
+  const handleDelete = useCallback(async (productId: string, productName: string) => {
     try {
       await deleteProduct(productId);
       toast({
@@ -55,11 +62,49 @@ const ProductManagement = () => {
         variant: "destructive",
       });
     }
-  };
+  }, [deleteProduct, toast]);
 
   const formatPrice = (price: number) => {
     return `₹${price.toLocaleString()}`;
   };
+
+  const handleStockUpdate = useCallback(async (productId: string) => {
+    try {
+      await updateStock(productId, stockValue);
+      toast({
+        title: "Stock updated",
+        description: "Product stock has been updated successfully.",
+      });
+      setEditingStock(null);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update stock. Please try again.",
+        variant: "destructive",
+      });
+    }
+  }, [updateStock, stockValue, toast]);
+
+  const handleToggleActive = useCallback(async (productId: string, isActive: boolean) => {
+    try {
+      await toggleProductStatus(productId, isActive);
+      toast({
+        title: "Product status updated",
+        description: `Product has been ${isActive ? 'activated' : 'deactivated'}.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update product status. Please try again.",
+        variant: "destructive",
+      });
+    }
+  }, [toggleProductStatus, toast]);
+
+  const startStockEdit = useCallback((productId: string, currentStock: number) => {
+    setEditingStock(productId);
+    setStockValue(currentStock);
+  }, []);
 
   if (loading) {
     return (
@@ -92,6 +137,52 @@ const ProductManagement = () => {
             <Button onClick={() => window.location.reload()} variant="outline">
               Try Again
             </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Check if shop is approved
+  if (shopLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Product Management</CardTitle>
+          <CardDescription>Manage your product inventory</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading shop information...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (shop && !shop.is_approved) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Product Management</CardTitle>
+          <CardDescription>Manage your product inventory</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8">
+            <AlertCircle className="w-12 h-12 mx-auto text-yellow-500 mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Shop Not Approved Yet</h3>
+            <p className="text-muted-foreground mb-4">
+              You cannot add or manage products until your shop is approved by our admin team.
+            </p>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-left">
+              <p className="font-semibold mb-2 text-yellow-800">What you can do:</p>
+              <ul className="space-y-1 text-yellow-700">
+                <li>• Wait for admin approval of your shop</li>
+                <li>• Edit your shop details if needed</li>
+                <li>• Prepare your product information</li>
+              </ul>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -156,6 +247,7 @@ const ProductManagement = () => {
                     <TableHead>Category</TableHead>
                     <TableHead>Price</TableHead>
                     <TableHead>Stock</TableHead>
+                    <TableHead>Active</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -192,15 +284,61 @@ const ProductManagement = () => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="text-sm">
-                          {product.weight && (
-                            <div className="text-muted-foreground">{product.weight}</div>
-                          )}
-                        </div>
+                        {editingStock === product.id ? (
+                          <div className="flex items-center gap-2">
+                            <Input
+                              type="number"
+                              value={stockValue}
+                              onChange={(e) => setStockValue(Number(e.target.value))}
+                              className="w-20 h-8"
+                              min="0"
+                            />
+                            <Button
+                              size="sm"
+                              onClick={() => handleStockUpdate(product.id)}
+                              className="h-8 px-2"
+                            >
+                              Save
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setEditingStock(null)}
+                              className="h-8 px-2"
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium">
+                              {product.stockQuantity || 0}
+                            </span>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => startStockEdit(product.id, product.stockQuantity || 0)}
+                              className="h-6 w-6 p-0"
+                            >
+                              <Edit className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Switch
+                          checked={product.isActive ?? true}
+                          onCheckedChange={(checked) => handleToggleActive(product.id, checked)}
+                        />
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          {product.inStock ? (
+                          {product.isActive === false ? (
+                            <>
+                              <XCircle className="w-4 h-4 text-gray-600" />
+                              <span className="text-sm text-gray-600">Inactive</span>
+                            </>
+                          ) : product.inStock && (product.stockQuantity || 0) > 0 ? (
                             <>
                               <CheckCircle className="w-4 h-4 text-green-600" />
                               <span className="text-sm text-green-600">In Stock</span>

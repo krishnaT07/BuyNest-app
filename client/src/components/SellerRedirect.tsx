@@ -8,20 +8,20 @@ interface SellerRedirectProps {
 }
 
 const SellerRedirect = ({ children }: SellerRedirectProps) => {
-  const { user, loading } = useAuth();
+  const { user, isLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading) {
+    if (!isLoading) {
       if (!user) {
         navigate('/auth/login');
       } else if (user.role !== 'seller') {
         navigate('/');
       }
     }
-  }, [user, loading, navigate]);
+  }, [user, isLoading, navigate]);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-4">

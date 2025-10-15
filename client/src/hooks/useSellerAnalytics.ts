@@ -10,6 +10,11 @@ interface AnalyticsData {
   todayOrders: number;
   salesByDay: Array<{ date: string; amount: number; orders: number }>;
   topProducts: Array<{ name: string; sales: number; quantity: number }>;
+  growthStats: {
+    salesGrowth: number;
+    ordersGrowth: number;
+    avgOrderValue: number;
+  };
 }
 
 export const useSellerAnalytics = () => {
@@ -45,6 +50,11 @@ export const useSellerAnalytics = () => {
           todayOrders: 0,
           salesByDay: [],
           topProducts: [],
+          growthStats: {
+            salesGrowth: 0,
+            ordersGrowth: 0,
+            avgOrderValue: 0,
+          },
         });
         setLoading(false);
         return;
@@ -95,12 +105,40 @@ export const useSellerAnalytics = () => {
         };
       });
 
-      // Top products (mock data for now as we need more complex queries)
-      const topProducts = [
-        { name: "Fresh Bananas", sales: 2340, quantity: 45 },
-        { name: "Organic Milk", sales: 1890, quantity: 32 },
-        { name: "Wheat Flour", sales: 1560, quantity: 28 },
-      ];
+      // Calculate top products from order items
+      const productSales = new Map<string, { name: string; sales: number; quantity: number }>();
+      
+      orders?.forEach(order => {
+        order.items?.forEach((item: any) => {
+          const key = item.product_id || item.name;
+          const existing = productSales.get(key) || { name: item.name, sales: 0, quantity: 0 };
+          productSales.set(key, {
+            name: item.name,
+            sales: existing.sales + (item.price * item.quantity),
+            quantity: existing.quantity + item.quantity,
+          });
+        });
+      });
+
+      const topProducts = Array.from(productSales.values())
+        .sort((a, b) => b.sales - a.sales)
+        .slice(0, 5);
+
+      // Calculate growth stats
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split('T')[0];
+      
+      const yesterdayOrders = orders?.filter(order => 
+        new Date(order.created_at).toISOString().split('T')[0] === yesterdayStr
+      ) || [];
+      
+      const yesterdaySales = yesterdayOrders.reduce((sum, order) => sum + parseFloat(order.total_amount), 0);
+      const yesterdayOrdersCount = yesterdayOrders.length;
+      
+      const salesGrowth = yesterdaySales > 0 ? ((totalSales - yesterdaySales) / yesterdaySales) * 100 : 0;
+      const ordersGrowth = yesterdayOrdersCount > 0 ? ((totalOrders - yesterdayOrdersCount) / yesterdayOrdersCount) * 100 : 0;
+      const avgOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0;
 
       setAnalytics({
         totalSales,
@@ -109,6 +147,11 @@ export const useSellerAnalytics = () => {
         todayOrders,
         salesByDay,
         topProducts,
+        growthStats: {
+          salesGrowth,
+          ordersGrowth,
+          avgOrderValue,
+        },
       });
     } catch (err) {
       console.error('Error fetching seller analytics:', err);

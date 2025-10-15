@@ -32,6 +32,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { useDeliveryMode } from "@/context/DeliveryModeContext";
 import { useShops } from "@/hooks/useShops";
 import { useProducts } from "@/hooks/useProducts";
+import ShopCard from "@/components/ShopCard";
 
 const categories = [
   "All Categories", "Grocery", "Electronics", "Clothing", "Food & Drinks", 
@@ -45,7 +46,7 @@ const Browse = () => {
   
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
-  const [priceRange, setPriceRange] = useState([0, 10000]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
   const [sortBy, setSortBy] = useState("relevance");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [activeTab, setActiveTab] = useState<"shops" | "products">("shops");
@@ -184,7 +185,7 @@ const Browse = () => {
   </label>
   <Slider
     value={priceRange}
-    onValueChange={setPriceRange}
+    onValueChange={(value) => setPriceRange(value as [number, number])}
     max={10000}
     min={0}
     step={100}
@@ -261,7 +262,7 @@ const Browse = () => {
                   onClick={() => setActiveTab("shops")}
                   className="rounded-md"
                 >
-                  Shops ({loading ? "..." : shops.length})
+                  Shops ({loading ? "..." : ((shops as any)?.length || 0)})
                 </Button>
                 <Button
                   variant={activeTab === "products" ? "default" : "ghost"}
@@ -269,7 +270,7 @@ const Browse = () => {
                   onClick={() => setActiveTab("products")}
                   className="rounded-md"
                 >
-                  Products ({loading ? "..." : products.length})
+                  Products ({loading ? "..." : ((products as any)?.length || 0)})
                 </Button>
               </div>
 
@@ -316,74 +317,26 @@ const Browse = () => {
               <>
                 {activeTab === "shops" ? (
                   <div className={viewMode === "grid" ? "grid md:grid-cols-2 xl:grid-cols-3 gap-6" : "space-y-4"}>
-                    {shops.length === 0 ? (
+                    {(shops as any) && (shops as any).length > 0 ? (
+                      (shops as any).map((shop: any) => (
+                        <ShopCard key={shop.id} shop={shop} viewMode={viewMode} />
+                      ))
+                    ) : (
                       <div className="col-span-full text-center py-8">
                         <p className="text-muted-foreground">No shops found matching your criteria.</p>
                       </div>
-                    ) : (
-                      shops.map((shop) => (
-                        <Link key={shop.id} to={`/shops/${shop.id}`}>
-                        <Card className="overflow-hidden hover:shadow-strong hover:-translate-y-1 transition-all cursor-pointer border-primary/10 bg-gradient-to-br from-card to-muted/30 animate-fade-in">
-                          <div className="relative">
-                            <img
-                              src={shop.imageUrl || "/images/shops/default-shop.jpg"}
-                              alt={shop.name}
-                              className="w-full h-48 object-cover group-hover:scale-105 transition-transform"
-                              loading="lazy"
-                              decoding="async"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 hover:opacity-100 transition-opacity" />
-                            <Badge className="absolute top-3 left-3 bg-gradient-primary text-white shadow-soft">
-                              {shop.categories?.[0] || 'Shop'}
-                            </Badge>
-                          </div>
-                          <CardContent className="p-4">
-                            <div className="space-y-2">
-                              <div className="flex items-center justify-between">
-                                <h3 className="font-semibold text-lg">{shop.name}</h3>
-                                <div className="flex items-center gap-1">
-                                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                  <span className="text-sm font-medium">{shop.rating}</span>
-                                </div>
-                              </div>
-                              
-                              <p className="text-sm text-muted-foreground line-clamp-2">{shop.description}</p>
-                              
-                              <div className="flex items-center justify-between text-sm text-muted-foreground">
-                                <div className="flex items-center gap-1">
-                                  <Clock className="h-4 w-4" />
-                                  {deliveryMode === "pickup" ? "Ready for pickup" : shop.deliveryTime}
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <MapPin className="h-4 w-4" />
-                                  {shop.address?.split(',')[0] || 'Location'}
-                                </div>
-                              </div>
-                              
-                              <Badge variant="outline" className="mt-2">
-                                {deliveryMode === "pickup" ? "Pickup Available" : "Delivery Available"}
-                              </Badge>
-                            </div>
-                          </CardContent>
-                        </Card>
-                        </Link>
-                      ))
                     )}
                   </div>
                 ) : (
                   <div className={viewMode === "grid" ? "grid md:grid-cols-2 xl:grid-cols-3 gap-6" : "space-y-4"}>
-                    {products.length === 0 ? (
-                      <div className="col-span-full text-center py-8">
-                        <p className="text-muted-foreground">No products found matching your criteria.</p>
-                      </div>
-                    ) : (
-                      products
-                        .filter(p => !inStockOnly || p.inStock)
-                        .filter(p => {
+                    {(products as any) && (products as any).length > 0 ? (
+                      (products as any)
+                        .filter((p: any) => !inStockOnly || p.inStock)
+                        .filter((p: any) => {
                           if (!minRating) return true;
                           return true; // placeholder if rating exists later
                         })
-                        .map((product) => (
+                        .map((product: any) => (
                         <Card key={product.id} className="overflow-hidden hover:shadow-strong hover:-translate-y-1 transition-all cursor-pointer border-primary/10 bg-gradient-to-br from-card to-muted/30 animate-fade-in group">
                           <div className="relative overflow-hidden">
                             <img
@@ -439,6 +392,10 @@ const Browse = () => {
                           </CardContent>
                         </Card>
                       ))
+                    ) : (
+                      <div className="col-span-full text-center py-8">
+                        <p className="text-muted-foreground">No products found matching your criteria.</p>
+                      </div>
                     )}
                   </div>
                 )}

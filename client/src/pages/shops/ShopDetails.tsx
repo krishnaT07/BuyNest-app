@@ -8,14 +8,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
-import { useToast } from "@/hooks/use-toast";
-import { MapPin, Clock, Star, Phone } from "lucide-react";
+import { useCart } from "@/context/CartContext";
+import { useDeliveryMode } from "@/context/DeliveryModeContext";
 import { useShopDetails } from "@/hooks/useShopDetails";
 import { useProducts } from "@/hooks/useProducts";
+import { useToast } from "@/hooks/use-toast";
+import { MapPin, Clock, Star, Phone, ShoppingCart, Truck } from "lucide-react";
 
 const ShopDetails = () => {
   const { shopId } = useParams();
   const { toast } = useToast();
+  const { items: cartItems, totalPrice } = useCart();
+  const { deliveryMode } = useDeliveryMode();
   
   const { shop, loading: shopLoading, error: shopError } = useShopDetails(shopId);
   const { products, loading: productsLoading, error: productsError } = useProducts({ shopId });
@@ -120,9 +124,13 @@ const ShopDetails = () => {
               </TabsList>
               <TabsContent value="products" className="mt-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {products.map((product) => (
+                  {(products as any) && (products as any).length > 0 ? (products as any).map((product: any) => (
                     <ProductCard key={product.id} product={product} shopName={shop.name} />
-                  ))}
+                  )) : (
+                    <div className="col-span-full text-center py-8">
+                      <p className="text-muted-foreground">No products available in this shop.</p>
+                    </div>
+                  )}
                 </div>
               </TabsContent>
               <TabsContent value="reviews" className="mt-6">
@@ -153,18 +161,84 @@ const ShopDetails = () => {
             </Tabs>
           </div>
 
-          <div>
+          <div className="space-y-4">
+            {/* Cart Summary */}
             <Card>
               <CardHeader>
-                <CardTitle>Order Summary</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <ShoppingCart className="h-5 w-5" />
+                  Order Summary
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  Add items to your cart to see the order summary.
-                </p>
-                <Button className="w-full" disabled>
-                  Add items to cart
-                </Button>
+                {cartItems.length > 0 ? (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      {cartItems.map((item) => (
+                        <div key={item.id} className="flex items-center justify-between text-sm">
+                          <div className="flex-1">
+                            <p className="font-medium">{item.name}</p>
+                            <p className="text-muted-foreground">Qty: {item.quantity}</p>
+                          </div>
+                          <p className="font-medium">₹{(item.price * item.quantity).toFixed(2)}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="border-t pt-2">
+                      <div className="flex items-center justify-between text-sm text-muted-foreground mb-1">
+                        <span>Delivery Mode:</span>
+                        <span className="capitalize">{deliveryMode}</span>
+                      </div>
+                      <div className="flex items-center justify-between font-semibold">
+                        <span>Total:</span>
+                        <span>₹{totalPrice.toFixed(2)}</span>
+                      </div>
+                    </div>
+                    <Button className="w-full" onClick={() => window.location.href = '/cart'}>
+                      <ShoppingCart className="h-4 w-4 mr-2" />
+                      View Cart ({cartItems.length})
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <ShoppingCart className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-muted-foreground mb-4">
+                      Your cart is empty. Add some products to get started!
+                    </p>
+                    <Button className="w-full" disabled>
+                      Add items to cart
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Shop Info Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Truck className="h-5 w-5" />
+                  Delivery Info
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-center gap-2 text-sm">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <span>{shop.deliveryTime}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                  <span>{shop.address}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Phone className="h-4 w-4 text-muted-foreground" />
+                  <span>{shop.phone}</span>
+                </div>
+                <div className="pt-2 border-t">
+                  <p className="text-sm text-muted-foreground">
+                    Minimum order: <span className="font-medium">₹{shop.minimumOrder}</span>
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </div>

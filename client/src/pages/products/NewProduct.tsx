@@ -12,6 +12,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
 import { useSellerProducts } from "@/hooks/useSellerProducts";
+import { useSellerShop } from "@/hooks/useSellerShop";
 import { Package, Upload, DollarSign } from "lucide-react";
 
 const NewProduct = () => {
@@ -30,6 +31,7 @@ const NewProduct = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { createProduct } = useSellerProducts();
+  const { shop, loading: shopLoading } = useSellerShop();
   const navigate = useNavigate();
 
   const categories = [
@@ -57,6 +59,17 @@ const NewProduct = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check if shop is approved
+    if (!shop || !shop.is_approved) {
+      toast({
+        title: "Shop Not Approved",
+        description: "You cannot add products until your shop is approved by our admin team.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsLoading(true);
 
     try {
@@ -106,6 +119,59 @@ const NewProduct = () => {
       setIsLoading(false);
     }
   };
+
+  // Show loading state while checking shop status
+  if (shopLoading) {
+    return (
+      <div className="min-h-screen">
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-2xl mx-auto">
+            <div className="text-center py-16">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading shop information...</p>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Check if shop is approved
+  if (!shop || !shop.is_approved) {
+    return (
+      <div className="min-h-screen">
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-2xl mx-auto">
+            <div className="text-center py-16">
+              <Package className="h-16 w-16 mx-auto text-yellow-500 mb-4" />
+              <h1 className="text-2xl font-bold mb-4">Shop Not Approved Yet</h1>
+              <p className="text-muted-foreground mb-6">
+                You cannot add products until your shop is approved by our admin team.
+              </p>
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-sm text-left mb-6">
+                <p className="font-semibold mb-2 text-yellow-800">What you can do:</p>
+                <ul className="space-y-1 text-yellow-700">
+                  <li>• Wait for admin approval of your shop</li>
+                  <li>• Edit your shop details if needed</li>
+                  <li>• Prepare your product information</li>
+                </ul>
+              </div>
+              <Button 
+                variant="outline"
+                onClick={() => navigate('/seller-dashboard')}
+              >
+                Back to Dashboard
+              </Button>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">

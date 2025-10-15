@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,15 +18,32 @@ import { useSellerOrders } from "@/hooks/useSellerOrders";
 import { useSellerAnalytics } from "@/hooks/useSellerAnalytics";
 import { useSellerProducts } from "@/hooks/useSellerProducts";
 import { useToast } from "@/hooks/use-toast";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import OrderNotification from "@/components/OrderNotification";
+import OrderDetailsModal from "@/components/OrderDetailsModal";
 
 const SellerDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  const [showWelcomeCard, setShowWelcomeCard] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { shop, loading } = useSellerShop();
-  const { orders, loading: ordersLoading, updateOrderStatus } = useSellerOrders();
+  const { orders, loading: ordersLoading, updateOrderStatus, refetch: refetchOrders } = useSellerOrders();
   const { analytics, loading: analyticsLoading } = useSellerAnalytics();
   const { products, loading: productsLoading } = useSellerProducts();
+
+  // Check if user just registered a shop
+  useEffect(() => {
+    if (searchParams.get('registered') === 'true') {
+      setShowWelcomeCard(true);
+      // Remove the query parameter from URL
+      navigate('/seller-dashboard', { replace: true });
+    }
+  }, [searchParams, navigate]);
 
   const handleOrderStatusChange = async (orderId: string, status: string) => {
     try {
@@ -44,36 +61,50 @@ const SellerDashboard = () => {
     }
   };
 
+  const handleViewOrder = (orderId: string) => {
+    setSelectedOrderId(orderId);
+    setIsOrderModalOpen(true);
+  };
+
+  const handleCloseOrderModal = () => {
+    setIsOrderModalOpen(false);
+    setSelectedOrderId(null);
+  };
+
+  const handleOrderUpdate = () => {
+    refetchOrders();
+  };
+
   const stats = analytics ? [
     {
       title: "Total Sales",
       value: `₹${analytics.totalSales.toLocaleString()}`,
-      change: "+12%",
+      change: `${analytics.growthStats?.salesGrowth >= 0 ? '+' : ''}${analytics.growthStats?.salesGrowth?.toFixed(1) || '0.0'}%`,
       icon: BarChart3
     },
     {
       title: "Orders Today",
       value: analytics.todayOrders.toString(),
-      change: "+8%",
+      change: `${analytics.growthStats?.ordersGrowth >= 0 ? '+' : ''}${analytics.growthStats?.ordersGrowth?.toFixed(1) || '0.0'}%`,
       icon: Package
     },
     {
       title: "Products",
       value: analytics.totalProducts.toString(),
-      change: "+3",
+      change: "Active",
       icon: Store
     },
     {
-      title: "Total Orders",
-      value: analytics.totalOrders.toString(),
-      change: "+15%",
+      title: "Avg Order Value",
+      value: `₹${analytics.growthStats?.avgOrderValue?.toFixed(0) || '0'}`,
+      change: "Per order",
       icon: ShoppingCart
     }
   ] : [
     { title: "Total Sales", value: "₹0", change: "0%", icon: BarChart3 },
     { title: "Orders Today", value: "0", change: "0%", icon: Package },
     { title: "Products", value: "0", change: "0%", icon: Store },
-    { title: "Total Orders", value: "0", change: "0%", icon: ShoppingCart }
+    { title: "Avg Order Value", value: "₹0", change: "0%", icon: ShoppingCart }
   ];
 
   // Show different views based on shop status
@@ -159,6 +190,19 @@ const SellerDashboard = () => {
   return (
     <SellerRedirect>
       <div className="min-h-screen bg-background">
+        {/* Order Notification */}
+        <OrderNotification 
+          onClose={() => {}} 
+          onViewOrder={handleViewOrder} 
+        />
+        
+        {/* Order Details Modal */}
+        <OrderDetailsModal
+          orderId={selectedOrderId}
+          isOpen={isOrderModalOpen}
+          onClose={handleCloseOrderModal}
+          onOrderUpdate={handleOrderUpdate}
+        />
       {/* Header */}
       <header className="bg-card border-b border-border sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -187,6 +231,57 @@ const SellerDashboard = () => {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Welcome Card for New Shop Registration */}
+        {showWelcomeCard && (
+          <Card className="mb-6 border-green-200 bg-green-50">
+            <CardContent className="p-6">
+              <div className="flex items-start space-x-4">
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                    <Store className="w-6 h-6 text-green-600" />
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-green-800 mb-2">
+                    Welcome to BuyNest! 🎉
+                  </h3>
+                  <p className="text-green-700 mb-4">
+                    You have successfully registered your shop "{shop?.name}". Your shop will be live once we verify your details. 
+                    Our admin team will review your shop and notify you once it's approved.
+                  </p>
+                  <div className="bg-white border border-green-200 rounded-lg p-4 mb-4">
+                    <h4 className="font-semibold text-green-800 mb-2">What happens next?</h4>
+                    <ul className="space-y-1 text-sm text-green-700">
+                      <li>• Our admin team will review your shop details</li>
+                      <li>• You'll receive a notification once approved</li>
+                      <li>• After approval, you can add products and start selling</li>
+                      <li>• You can edit your shop details anytime</li>
+                    </ul>
+                  </div>
+                  <div className="flex space-x-3">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => setShowWelcomeCard(false)}
+                      className="border-green-300 text-green-700 hover:bg-green-100"
+                    >
+                      Got it
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => navigate('/shops/register')}
+                      className="border-green-300 text-green-700 hover:bg-green-100"
+                    >
+                      Edit Shop Details
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -247,7 +342,11 @@ const SellerDashboard = () => {
                     </div>
                   ) : (
                     orders.slice(0, 3).map((order) => (
-                      <div key={order.id} className="flex items-center justify-between p-3 border border-border rounded-lg">
+                      <div 
+                        key={order.id} 
+                        className="flex items-center justify-between p-3 border border-border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
+                        onClick={() => handleViewOrder(order.id)}
+                      >
                         <div className="space-y-1">
                           <p className="font-medium text-sm">{order.id.substring(0, 8)}...</p>
                           <p className="text-xs text-muted-foreground">{order.phone_number}</p>
@@ -350,7 +449,11 @@ const SellerDashboard = () => {
                     </TableHeader>
                     <TableBody>
                       {orders.map((order) => (
-                        <TableRow key={order.id}>
+                        <TableRow 
+                          key={order.id} 
+                          className="cursor-pointer hover:bg-muted/50"
+                          onClick={() => handleViewOrder(order.id)}
+                        >
                           <TableCell className="font-medium">
                             {order.id.substring(0, 8)}...
                           </TableCell>
@@ -376,7 +479,10 @@ const SellerDashboard = () => {
                               {order.status === "pending" && (
                                 <Button
                                   size="sm"
-                                  onClick={() => handleOrderStatusChange(order.id, "confirmed")}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleOrderStatusChange(order.id, "confirmed");
+                                  }}
                                 >
                                   Confirm
                                 </Button>
@@ -384,7 +490,10 @@ const SellerDashboard = () => {
                               {order.status === "confirmed" && (
                                 <Button
                                   size="sm"
-                                  onClick={() => handleOrderStatusChange(order.id, "preparing")}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleOrderStatusChange(order.id, "preparing");
+                                  }}
                                 >
                                   Preparing
                                 </Button>
@@ -392,7 +501,10 @@ const SellerDashboard = () => {
                               {order.status === "preparing" && (
                                 <Button
                                   size="sm"
-                                  onClick={() => handleOrderStatusChange(order.id, "out_for_delivery")}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleOrderStatusChange(order.id, "out_for_delivery");
+                                  }}
                                 >
                                   Out for Delivery
                                 </Button>
@@ -400,7 +512,10 @@ const SellerDashboard = () => {
                               {order.status === "out_for_delivery" && (
                                 <Button
                                   size="sm"
-                                  onClick={() => handleOrderStatusChange(order.id, "delivered")}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleOrderStatusChange(order.id, "delivered");
+                                  }}
                                 >
                                   Delivered
                                 </Button>
@@ -408,9 +523,9 @@ const SellerDashboard = () => {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => {
-                                  // View order details
-                                  console.log('View order:', order);
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleViewOrder(order.id);
                                 }}
                               >
                                 <Eye className="w-4 h-4" />

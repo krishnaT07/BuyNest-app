@@ -8,16 +8,16 @@ interface BuyerRedirectProps {
 }
 
 const BuyerRedirect = ({ children }: BuyerRedirectProps) => {
-  const { user, loading } = useAuth();
+  const { user, isLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!isLoading && !user) {
       navigate('/auth/login');
     }
-  }, [user, loading, navigate]);
+  }, [user, isLoading, navigate]);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-4">

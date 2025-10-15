@@ -12,8 +12,20 @@ import { memo, useCallback } from "react";
 const Index = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const goBuyer = useCallback(() => navigate('/buyer-dashboard'), [navigate]);
-  const goSeller = useCallback(() => navigate('/seller-dashboard'), [navigate]);
+  const goBuyer = useCallback(() => {
+    if (user) {
+      navigate('/browse');
+    } else {
+      navigate('/auth/register?role=buyer');
+    }
+  }, [navigate, user]);
+  const goSeller = useCallback(() => {
+    if (user) {
+      navigate('/seller-dashboard');
+    } else {
+      navigate('/auth/register?role=seller');
+    }
+  }, [navigate, user]);
   
   return (
     <div className="min-h-screen">
