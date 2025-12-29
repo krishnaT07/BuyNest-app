@@ -21,6 +21,7 @@ import Index from "./pages/Index";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import NotFound from "./pages/NotFound";
+const AdminLogin = lazy(() => import("./pages/auth/AdminLogin"));
 
 // Lazy load: secondary pages for code splitting
 const ForgotPassword = lazy(() => import("./pages/auth/ForgotPassword"));
@@ -107,6 +108,7 @@ const App = () => (
                     <Routes>
                     <Route path="/" element={<Index />} />
                     <Route path="/auth/login" element={<Login />} />
+                    <Route path="/auth/admin-login" element={<AdminLogin />} />
                     <Route path="/auth/register" element={<Register />} />
                     <Route path="/auth/forgot-password" element={<ForgotPassword />} />
                     <Route path="/auth/reset-password" element={<ResetPassword />} />

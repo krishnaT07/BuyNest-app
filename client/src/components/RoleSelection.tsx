@@ -72,7 +72,13 @@ const RoleSelection = () => {
                   <Button 
                     variant={role.color === "primary" ? "hero" : role.color === "accent" ? "accent" : "default"}
                     className="w-full"
-                    onClick={() => navigate(role.href)}
+                    onClick={() => {
+                      if (role.title === "I'm an Admin") {
+                        navigate("/auth/admin-login");
+                      } else {
+                        navigate(role.href);
+                      }
+                    }}
                   >
                     Get Started
                     <ArrowRight className="w-4 h-4 ml-2" />
