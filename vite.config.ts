@@ -13,6 +13,7 @@ export default defineConfig(({ mode }) => ({
   build: {
     outDir: "dist",
   },
+  publicDir: "./client/public",
   css: {
     // Ensure Vite uses the Tailwind/PostCSS config located under client/
     postcss: "./client/postcss.config.js",
