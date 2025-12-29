@@ -42,6 +42,35 @@ const PaymentCancel = lazy(() => import("./pages/PaymentCancel"));
 const PaymentProcessing = lazy(() => import("./pages/PaymentProcessing"));
 const Wishlist = lazy(() => import("./pages/Wishlist"));
 
+// Buyer pages
+const BrowseShops = lazy(() => import("./pages/buyer/BrowseShops"));
+const BuyerOrders = lazy(() => import("./pages/buyer/BuyerOrders"));
+const BuyerWishlist = lazy(() => import("./pages/buyer/BuyerWishlist"));
+const Notifications = lazy(() => import("./pages/buyer/Notifications"));
+const Addresses = lazy(() => import("./pages/buyer/Addresses"));
+const Payments = lazy(() => import("./pages/buyer/Payments"));
+
+// Seller pages
+const SellerShop = lazy(() => import("./pages/seller/SellerShop"));
+const SellerProducts = lazy(() => import("./pages/seller/SellerProducts"));
+const SellerOrders = lazy(() => import("./pages/seller/SellerOrders"));
+const SellerAnalytics = lazy(() => import("./pages/seller/SellerAnalytics"));
+const SellerSettings = lazy(() => import("./pages/seller/SellerSettings"));
+
+// Admin pages
+const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
+const AdminShops = lazy(() => import("./pages/admin/AdminShops"));
+const AdminProducts = lazy(() => import("./pages/admin/AdminProducts"));
+const AdminOrders = lazy(() => import("./pages/admin/AdminOrders"));
+const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
+const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
+
+// Footer pages
+const Help = lazy(() => import("./pages/Help"));
+const About = lazy(() => import("./pages/About"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Terms = lazy(() => import("./pages/Terms"));
+
 // Optimized QueryClient configuration
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -100,28 +129,39 @@ const App = () => (
                     <Route path="/admin-dashboard" element={<AdminRedirect><AdminDashboard /></AdminRedirect>} />
                     
                     {/* Admin Routes */}
-                    <Route path="/admin/users" element={<AdminRedirect><NotFound /></AdminRedirect>} />
-                    <Route path="/admin/shops" element={<AdminRedirect><NotFound /></AdminRedirect>} />
-                    <Route path="/admin/products" element={<AdminRedirect><NotFound /></AdminRedirect>} />
-                    <Route path="/admin/orders" element={<AdminRedirect><NotFound /></AdminRedirect>} />
-                    <Route path="/admin/analytics" element={<AdminRedirect><NotFound /></AdminRedirect>} />
-                    <Route path="/admin/settings" element={<AdminRedirect><NotFound /></AdminRedirect>} />
+                    <Route path="/admin/users" element={<AdminRedirect><AdminUsers /></AdminRedirect>} />
+                    <Route path="/admin/shops" element={<AdminRedirect><AdminShops /></AdminRedirect>} />
+                    <Route path="/admin/products" element={<AdminRedirect><AdminProducts /></AdminRedirect>} />
+                    <Route path="/admin/orders" element={<AdminRedirect><AdminOrders /></AdminRedirect>} />
+                    <Route path="/admin/analytics" element={<AdminRedirect><AdminAnalytics /></AdminRedirect>} />
+                    <Route path="/admin/settings" element={<AdminRedirect><AdminSettings /></AdminRedirect>} />
                     
                     {/* Seller Routes */}
-                    <Route path="/seller/shop" element={<SellerRedirect><NotFound /></SellerRedirect>} />
-                    <Route path="/seller/products" element={<SellerRedirect><NotFound /></SellerRedirect>} />
-                    <Route path="/seller/orders" element={<SellerRedirect><NotFound /></SellerRedirect>} />
-                    <Route path="/seller/analytics" element={<SellerRedirect><NotFound /></SellerRedirect>} />
-                    <Route path="/seller/settings" element={<SellerRedirect><NotFound /></SellerRedirect>} />
+                    <Route path="/seller/shop" element={<SellerRedirect><SellerShop /></SellerRedirect>} />
+                    <Route path="/seller/products" element={<SellerRedirect><SellerProducts /></SellerRedirect>} />
+                    <Route path="/seller/orders" element={<SellerRedirect><SellerOrders /></SellerRedirect>} />
+                    <Route path="/seller/analytics" element={<SellerRedirect><SellerAnalytics /></SellerRedirect>} />
+                    <Route path="/seller/settings" element={<SellerRedirect><SellerSettings /></SellerRedirect>} />
                     
                     {/* Buyer Routes */}
-                    <Route path="/shops" element={<BuyerRedirect><NotFound /></BuyerRedirect>} />
-                    <Route path="/buyer/orders" element={<BuyerRedirect><NotFound /></BuyerRedirect>} />
-                    <Route path="/buyer/wishlist" element={<BuyerRedirect><NotFound /></BuyerRedirect>} />
-                    <Route path="/buyer/notifications" element={<BuyerRedirect><NotFound /></BuyerRedirect>} />
-                    <Route path="/buyer/addresses" element={<BuyerRedirect><NotFound /></BuyerRedirect>} />
-                    <Route path="/buyer/payments" element={<BuyerRedirect><NotFound /></BuyerRedirect>} />
-                    <Route path="/help" element={<NotFound />} />
+                    <Route path="/shops" element={<BuyerRedirect><BrowseShops /></BuyerRedirect>} />
+                    <Route path="/buyer/orders" element={<BuyerRedirect><BuyerOrders /></BuyerRedirect>} />
+                    <Route path="/buyer/wishlist" element={<BuyerRedirect><BuyerWishlist /></BuyerRedirect>} />
+                    <Route path="/buyer/notifications" element={<BuyerRedirect><Notifications /></BuyerRedirect>} />
+                    <Route path="/buyer/addresses" element={<BuyerRedirect><Addresses /></BuyerRedirect>} />
+                    <Route path="/buyer/payments" element={<BuyerRedirect><Payments /></BuyerRedirect>} />
+                    
+                    {/* Footer/Info Pages */}
+                    <Route path="/help" element={<Help />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/privacy" element={<Privacy />} />
+                    <Route path="/terms" element={<Terms />} />
+                    <Route path="/cookies" element={<Privacy />} />
+                    <Route path="/categories" element={<Browse />} />
+                    <Route path="/deals" element={<Browse />} />
+                    <Route path="/seller-resources" element={<About />} />
+                    <Route path="/business-support" element={<Help />} />
+                    <Route path="/partner-program" element={<About />} />
                     
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />

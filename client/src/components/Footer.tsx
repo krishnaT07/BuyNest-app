@@ -29,10 +29,10 @@ const Footer = () => {
               <Link to="/shops" className="block text-muted-foreground hover:text-foreground">
                 Browse Shops
               </Link>
-              <Link to="/categories" className="block text-muted-foreground hover:text-foreground">
-                Categories
+              <Link to="/browse" className="block text-muted-foreground hover:text-foreground">
+                Browse Products
               </Link>
-              <Link to="/deals" className="block text-muted-foreground hover:text-foreground">
+              <Link to="/browse" className="block text-muted-foreground hover:text-foreground">
                 Deals & Offers
               </Link>
               <Link to="/about" className="block text-muted-foreground hover:text-foreground">
