@@ -23,7 +23,7 @@ const PaymentSuccess = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-primary/5 to-accent/5">
-      <Header />
+      <Navbar />
       <main className="flex-1 flex items-center justify-center px-4 py-8">
         <Card className="w-full max-w-md text-center shadow-xl border-primary/10">
         <CardHeader className="space-y-4">

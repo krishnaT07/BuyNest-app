@@ -31,10 +31,11 @@ import { useWishlist } from "@/context/WishlistContext";
 import { useShops } from "@/hooks/useShops";
 import { useProducts } from "@/hooks/useProducts";
 import { useToast } from "@/hooks/use-toast";
-import Header from "@/components/Header";
+import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import ShopCard from "@/components/ShopCard";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const BuyerDashboard = () => {
   const navigate = useNavigate();
@@ -96,8 +97,14 @@ const BuyerDashboard = () => {
   };
 
   const handleSearch = useCallback(() => {
-    // Search functionality is handled by the hooks
-  }, []);
+    // Search functionality is handled by the hooks - triggers re-fetch
+    if (searchQuery.trim()) {
+      toast({
+        title: "Searching...",
+        description: `Searching for "${searchQuery}"`,
+      });
+    }
+  }, [searchQuery, toast]);
 
   const handleAddToCart = useCallback((product: any) => {
     // Add to cart functionality
@@ -145,7 +152,7 @@ const BuyerDashboard = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-primary/5 to-accent/5">
-      <Header />
+      <Navbar />
       
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
         {/* Welcome Section */}
@@ -198,32 +205,45 @@ const BuyerDashboard = () => {
                       className="pl-10"
                     />
                   </div>
-                  <Button onClick={handleSearch} className="sm:w-auto">
+                  <Button 
+                    onClick={handleSearch} 
+                    className="sm:w-auto touch-manipulation"
+                    disabled={shopsLoading || productsLoading}
+                  >
+                    <Search className="h-4 w-4 mr-2" />
                     Search
                   </Button>
                 </div>
                 
                 <div className="flex flex-wrap gap-4 mt-4">
-                  <select 
+                  <Select 
                     value={selectedCategory} 
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="px-3 py-2 border border-border rounded-md bg-background"
+                    onValueChange={(value) => setSelectedCategory(value)}
                   >
-                    {categories.map(category => (
-                      <option key={category} value={category}>{category}</option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="w-full sm:w-[200px] touch-manipulation">
+                      <SelectValue placeholder="Select Category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map(category => (
+                        <SelectItem key={category} value={category}>{category}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   
-                  <select 
+                  <Select 
                     value={sortBy} 
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="px-3 py-2 border border-border rounded-md bg-background"
+                    onValueChange={(value) => setSortBy(value)}
                   >
-                    <option value="relevance">Relevance</option>
-                    <option value="rating">Highest Rated</option>
-                    <option value="distance">Nearest First</option>
-                    <option value="delivery-time">Fastest Delivery</option>
-                  </select>
+                    <SelectTrigger className="w-full sm:w-[200px] touch-manipulation">
+                      <SelectValue placeholder="Sort By" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="relevance">Relevance</SelectItem>
+                      <SelectItem value="rating">Highest Rated</SelectItem>
+                      <SelectItem value="distance">Nearest First</SelectItem>
+                      <SelectItem value="delivery-time">Fastest Delivery</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </CardContent>
             </Card>
@@ -260,18 +280,36 @@ const BuyerDashboard = () => {
                   </div>
                 </div>
                 
-                <div className={viewMode === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6" : "space-y-4"}>
-                  {filteredShops.length > 0 ? (
-                    filteredShops.map((shop: any) => (
-                      <ShopCard key={shop.id} shop={shop} viewMode={viewMode} />
-                    ))
-                  ) : (
-                    <div className="col-span-full text-center py-8">
-                      <Store className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-muted-foreground">No shops found matching your criteria.</p>
-                    </div>
-                  )}
-                </div>
+                {shopsLoading ? (
+                  <div className="text-center py-12">
+                    <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4" />
+                    <p className="text-muted-foreground">Loading shops...</p>
+                  </div>
+                ) : (
+                  <div className={viewMode === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6" : "space-y-4"}>
+                    {filteredShops.length > 0 ? (
+                      filteredShops.map((shop: any) => (
+                        <ShopCard key={shop.id} shop={shop} viewMode={viewMode} />
+                      ))
+                    ) : (
+                      <div className="col-span-full text-center py-8">
+                        <Store className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                        <p className="text-muted-foreground">No shops found matching your criteria.</p>
+                        <Button 
+                          variant="outline" 
+                          className="mt-4 touch-manipulation"
+                          onClick={() => {
+                            setSearchQuery("");
+                            setSelectedCategory("All Categories");
+                            setSortBy("relevance");
+                          }}
+                        >
+                          Clear Filters
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="products" className="mt-6">
@@ -297,18 +335,37 @@ const BuyerDashboard = () => {
                   </div>
                 </div>
                 
-                <div className={viewMode === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6" : "space-y-4"}>
-                  {filteredProducts.length > 0 ? (
-                    filteredProducts.map((product: any) => (
-                      <ProductCard key={product.id} product={product} />
-                    ))
-                  ) : (
-                    <div className="col-span-full text-center py-8">
-                      <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-muted-foreground">No products found matching your criteria.</p>
-                    </div>
-                  )}
-                </div>
+                {productsLoading ? (
+                  <div className="col-span-full text-center py-12">
+                    <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4" />
+                    <p className="text-muted-foreground">Loading products...</p>
+                  </div>
+                ) : (
+                  <div className={viewMode === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6" : "space-y-4"}>
+                    {filteredProducts.length > 0 ? (
+                      filteredProducts.map((product: any) => (
+                        <ProductCard key={product.id} product={product} />
+                      ))
+                    ) : (
+                      <div className="col-span-full text-center py-8">
+                        <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                        <p className="text-muted-foreground">No products found matching your criteria.</p>
+                        <Button 
+                          variant="outline" 
+                          className="mt-4 touch-manipulation"
+                          onClick={() => {
+                            setSearchQuery("");
+                            setSelectedCategory("All Categories");
+                            setSortBy("relevance");
+                            setPriceRange([0, 10000]);
+                          }}
+                        >
+                          Clear Filters
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="orders" className="mt-6">

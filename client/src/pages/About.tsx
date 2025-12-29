@@ -1,5 +1,5 @@
 "use client";
-import Header from "@/components/Header";
+import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Store, Users, Heart, Award } from "lucide-react";
@@ -7,7 +7,7 @@ import { Store, Users, Heart, Award } from "lucide-react";
 const About = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Header />
+      <Navbar />
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="mb-8 text-center">

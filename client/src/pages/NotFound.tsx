@@ -3,7 +3,7 @@ import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Home } from "lucide-react";
-import Header from "@/components/Header";
+import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 const NotFound = () => {
@@ -18,7 +18,7 @@ const NotFound = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Header />
+      <Navbar />
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center space-y-6 px-4">
           <h1 className="text-6xl font-bold text-primary">404</h1>

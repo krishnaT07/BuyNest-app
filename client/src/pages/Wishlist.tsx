@@ -3,7 +3,7 @@ import { useWishlist } from "@/context/WishlistContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import Header from "@/components/Header";
+import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Heart, ShoppingBag, Trash2 } from "lucide-react";
 
@@ -13,7 +13,7 @@ const Wishlist = () => {
   if (items.length === 0) {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-primary/5 to-accent/5">
-        <Header />
+        <Navbar />
         <div className="flex-1 flex items-center justify-center px-4">
           <div className="text-center max-w-md">
             <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
@@ -36,7 +36,7 @@ const Wishlist = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-primary/5 to-accent/5">
-      <Header />
+      <Navbar />
       <main className="flex-1 max-w-7xl mx-auto px-4 py-6 sm:py-8 w-full">
         <div className="mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

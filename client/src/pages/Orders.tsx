@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import LocationTracker from "@/components/LocationTracker";
 import { Package, Clock, CheckCircle, XCircle, MapPin, Phone, ShoppingCart } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import Header from "@/components/Header";
+import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 interface Order {
@@ -168,7 +168,7 @@ const Orders = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-primary/5 to-accent/5">
-      <Header />
+      <Navbar />
       <main className="flex-1 max-w-6xl mx-auto px-4 py-6 sm:py-8 w-full">
         <div className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight">My Orders</h1>

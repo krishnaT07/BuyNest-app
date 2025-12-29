@@ -1,12 +1,12 @@
 "use client";
 import Wishlist from "@/pages/Wishlist";
-import Header from "@/components/Header";
+import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 const BuyerWishlist = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Header />
+      <Navbar />
       <Wishlist />
       <Footer />
     </div>

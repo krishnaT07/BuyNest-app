@@ -18,7 +18,7 @@ import { useSellerOrders } from "@/hooks/useSellerOrders";
 import { useSellerAnalytics } from "@/hooks/useSellerAnalytics";
 import { useSellerProducts } from "@/hooks/useSellerProducts";
 import { useToast } from "@/hooks/use-toast";
-import Header from "@/components/Header";
+import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import OrderNotification from "@/components/OrderNotification";
 import OrderDetailsModal from "@/components/OrderDetailsModal";
@@ -124,7 +124,7 @@ const SellerDashboard = () => {
     return (
       <SellerRedirect>
         <div className="min-h-screen bg-background">
-          <Header />
+          <Navbar />
           <div className="container mx-auto px-4 py-16">
             <div className="max-w-md mx-auto text-center">
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-8">
@@ -153,7 +153,7 @@ const SellerDashboard = () => {
     return (
       <SellerRedirect>
         <div className="min-h-screen bg-background">
-          <Header />
+          <Navbar />
           <div className="container mx-auto px-4 py-16">
             <div className="max-w-md mx-auto text-center">
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-8">

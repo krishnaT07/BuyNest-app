@@ -35,7 +35,7 @@ import {
 } from "lucide-react";
 import { LocationInput } from "@/components/LocationInput";
 import { useAddressBook } from "@/context/AddressBookContext";
-import Header from "@/components/Header";
+import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useNavigate } from "react-router-dom";
 
@@ -157,7 +157,7 @@ const Profile = () => {
   if (!user) {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-primary/5 to-accent/5">
-        <Header />
+        <Navbar />
         <div className="flex-1 flex items-center justify-center px-4">
           <Card className="max-w-md w-full">
             <CardContent className="pt-6 text-center">
@@ -174,7 +174,7 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-primary/5 to-accent/5">
-      <Header />
+      <Navbar />
       <main className="flex-1 container mx-auto px-4 py-6 sm:py-8 max-w-7xl">
         {/* Header Section */}
         <div className="mb-6 sm:mb-8">

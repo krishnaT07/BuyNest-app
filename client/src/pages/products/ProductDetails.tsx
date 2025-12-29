@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import Header from "@/components/Header";
+import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Product, Shop } from "@/types";
 import { useToast } from "@/hooks/use-toast";
@@ -125,7 +125,7 @@ const ProductDetails = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen">
-        <Header />
+        <Navbar />
         <div className="container mx-auto px-4 py-8">
           <div className="animate-pulse space-y-4">
             <div className="h-8 bg-gray-200 rounded w-1/3"></div>
@@ -147,7 +147,7 @@ const ProductDetails = () => {
   if (!product || !shop) {
     return (
       <div className="min-h-screen">
-        <Header />
+        <Navbar />
         <div className="container mx-auto px-4 py-8 text-center">
           <h1 className="text-2xl font-bold text-gray-900">Product not found</h1>
           <p className="text-gray-600 mt-2">The product you're looking for doesn't exist.</p>
@@ -163,7 +163,7 @@ const ProductDetails = () => {
 
   return (
     <div className="min-h-screen">
-      <Header />
+      <Navbar />
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Product Image */}

@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import Header from "@/components/Header";
+import Navbar from "@/components/Navbar";
 import { Link } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { Button } from "@/components/ui/button";
@@ -91,7 +91,7 @@ const Browse = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5">
-      <Header />
+      <Navbar />
       
       <div className="container mx-auto px-4 py-8">
         {/* Search Header */}

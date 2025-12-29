@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Header from "@/components/Header";
+import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { useCart } from "@/context/CartContext";
@@ -40,7 +40,7 @@ const ShopDetails = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen">
-        <Header />
+        <Navbar />
         <div className="container mx-auto px-4 py-8">
           <div className="animate-pulse space-y-4">
             <div className="h-8 bg-muted rounded w-1/3"></div>
@@ -56,7 +56,7 @@ const ShopDetails = () => {
   if (!shop && !isLoading) {
     return (
       <div className="min-h-screen">
-        <Header />
+        <Navbar />
         <div className="container mx-auto px-4 py-8 text-center">
           <h1 className="text-2xl font-bold text-gray-900">Shop not found</h1>
           <p className="text-gray-600 mt-2">The shop you're looking for doesn't exist.</p>
@@ -68,7 +68,7 @@ const ShopDetails = () => {
 
   return (
     <div className="min-h-screen">
-      <Header />
+      <Navbar />
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
