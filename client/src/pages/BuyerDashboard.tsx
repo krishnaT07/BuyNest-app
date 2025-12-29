@@ -144,31 +144,31 @@ const BuyerDashboard = () => {
   }, [shops]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-primary/5 to-accent/5">
       <Header />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
         {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">
             Welcome back, {user?.name || 'Buyer'}! 👋
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm sm:text-base">
             Discover amazing local shops and products in your area
           </p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
           {statsCards.map((stat, index) => (
-            <Card key={index}>
-              <CardContent className="p-6">
+            <Card key={index} className="hover:shadow-lg transition-shadow border-primary/10 touch-manipulation">
+              <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                    <p className="text-2xl font-bold">{stat.value}</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs sm:text-sm font-medium text-muted-foreground truncate">{stat.title}</p>
+                    <p className="text-lg sm:text-xl lg:text-2xl font-bold truncate">{stat.value}</p>
                   </div>
-                  <stat.icon className={`h-8 w-8 ${stat.color}`} />
+                  <stat.icon className={`h-6 w-6 sm:h-8 sm:w-8 ${stat.color} flex-shrink-0 ml-2`} />
                 </div>
               </CardContent>
             </Card>
@@ -176,9 +176,9 @@ const BuyerDashboard = () => {
         </div>
 
         {/* Main Content */}
-        <div className="grid lg:grid-cols-4 gap-8">
+        <div className="grid lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-3 order-2 lg:order-1">
             {/* Search and Filters */}
             <Card className="mb-6">
               <CardHeader>
@@ -230,21 +230,22 @@ const BuyerDashboard = () => {
 
             {/* Tabs */}
             <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)}>
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="shops">Shops</TabsTrigger>
-                <TabsTrigger value="products">Products</TabsTrigger>
-                <TabsTrigger value="orders">Orders</TabsTrigger>
-                <TabsTrigger value="wishlist">Wishlist</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-4 h-auto touch-manipulation">
+                <TabsTrigger value="shops" className="text-xs sm:text-sm py-2 sm:py-3 touch-manipulation">Shops</TabsTrigger>
+                <TabsTrigger value="products" className="text-xs sm:text-sm py-2 sm:py-3 touch-manipulation">Products</TabsTrigger>
+                <TabsTrigger value="orders" className="text-xs sm:text-sm py-2 sm:py-3 touch-manipulation">Orders</TabsTrigger>
+                <TabsTrigger value="wishlist" className="text-xs sm:text-sm py-2 sm:py-3 touch-manipulation">Wishlist</TabsTrigger>
               </TabsList>
 
               <TabsContent value="shops" className="mt-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">Nearby Shops</h3>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+                  <h3 className="text-base sm:text-lg font-semibold">Nearby Shops</h3>
                   <div className="flex items-center gap-2">
                     <Button
                       variant={viewMode === "grid" ? "default" : "outline"}
                       size="sm"
                       onClick={() => setViewMode("grid")}
+                      className="touch-manipulation"
                     >
                       <Grid3X3 className="h-4 w-4" />
                     </Button>
@@ -252,13 +253,14 @@ const BuyerDashboard = () => {
                       variant={viewMode === "list" ? "default" : "outline"}
                       size="sm"
                       onClick={() => setViewMode("list")}
+                      className="touch-manipulation"
                     >
                       <List className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
                 
-                <div className={viewMode === "grid" ? "grid md:grid-cols-2 xl:grid-cols-3 gap-6" : "space-y-4"}>
+                <div className={viewMode === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6" : "space-y-4"}>
                   {filteredShops.length > 0 ? (
                     filteredShops.map((shop: any) => (
                       <ShopCard key={shop.id} shop={shop} viewMode={viewMode} />
@@ -273,13 +275,14 @@ const BuyerDashboard = () => {
               </TabsContent>
 
               <TabsContent value="products" className="mt-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">Featured Products</h3>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+                  <h3 className="text-base sm:text-lg font-semibold">Featured Products</h3>
                   <div className="flex items-center gap-2">
                     <Button
                       variant={viewMode === "grid" ? "default" : "outline"}
                       size="sm"
                       onClick={() => setViewMode("grid")}
+                      className="touch-manipulation"
                     >
                       <Grid3X3 className="h-4 w-4" />
                     </Button>
@@ -287,13 +290,14 @@ const BuyerDashboard = () => {
                       variant={viewMode === "list" ? "default" : "outline"}
                       size="sm"
                       onClick={() => setViewMode("list")}
+                      className="touch-manipulation"
                     >
                       <List className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
                 
-                <div className={viewMode === "grid" ? "grid md:grid-cols-2 xl:grid-cols-3 gap-6" : "space-y-4"}>
+                <div className={viewMode === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6" : "space-y-4"}>
                   {filteredProducts.length > 0 ? (
                     filteredProducts.map((product: any) => (
                       <ProductCard key={product.id} product={product} />
@@ -334,10 +338,15 @@ const BuyerDashboard = () => {
                           <div className="text-right">
                             <p className="font-semibold">{order.total}</p>
                             <p className="text-sm text-muted-foreground">{order.items} items</p>
-                            <Button size="sm" variant="outline" className="mt-2">
-                              <Eye className="h-4 w-4 mr-1" />
-                              View Details
-                            </Button>
+                            <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="mt-2 touch-manipulation"
+                      onClick={() => navigate('/orders')}
+                    >
+                      <Eye className="h-4 w-4 mr-1" />
+                      View Details
+                    </Button>
                           </div>
                         </div>
                       </CardContent>
@@ -364,7 +373,7 @@ const BuyerDashboard = () => {
                             {formatPrice(item.price)}
                           </p>
                           <div className="flex gap-2">
-                            <Button size="sm" className="flex-1">
+                            <Button size="sm" className="flex-1 touch-manipulation">
                               <ShoppingCart className="h-4 w-4 mr-1" />
                               Add to Cart
                             </Button>
@@ -372,6 +381,7 @@ const BuyerDashboard = () => {
                               size="sm" 
                               variant="outline"
                               onClick={() => toggleWishlist(item)}
+                              className="touch-manipulation"
                             >
                               <X className="h-4 w-4" />
                             </Button>
@@ -392,7 +402,7 @@ const BuyerDashboard = () => {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6 order-1 lg:order-2">
             {/* Cart Summary */}
             <Card>
               <CardHeader>
@@ -426,7 +436,10 @@ const BuyerDashboard = () => {
                         <span>{formatPrice(totalPrice)}</span>
                       </div>
                     </div>
-                    <Button className="w-full" onClick={() => navigate('/cart')}>
+                    <Button 
+                      className="w-full touch-manipulation" 
+                      onClick={() => navigate('/cart')}
+                    >
                       <ShoppingCart className="h-4 w-4 mr-2" />
                       View Cart ({totalItems})
                     </Button>
@@ -435,7 +448,10 @@ const BuyerDashboard = () => {
                   <div className="text-center py-4">
                     <ShoppingCart className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
                     <p className="text-muted-foreground mb-4">Your cart is empty</p>
-                    <Button className="w-full" onClick={() => navigate('/browse')}>
+                    <Button 
+                      className="w-full touch-manipulation" 
+                      onClick={() => navigate('/browse')}
+                    >
                       Start Shopping
                     </Button>
                   </div>
@@ -451,7 +467,7 @@ const BuyerDashboard = () => {
               <CardContent className="space-y-3">
                 <Button 
                   variant="outline" 
-                  className="w-full justify-start"
+                  className="w-full justify-start touch-manipulation"
                   onClick={() => navigate('/browse')}
                 >
                   <Store className="w-4 h-4 mr-2" />
@@ -459,7 +475,7 @@ const BuyerDashboard = () => {
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="w-full justify-start"
+                  className="w-full justify-start touch-manipulation"
                   onClick={() => navigate('/cart')}
                 >
                   <ShoppingCart className="w-4 h-4 mr-2" />
@@ -467,7 +483,7 @@ const BuyerDashboard = () => {
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="w-full justify-start"
+                  className="w-full justify-start touch-manipulation"
                   onClick={() => navigate('/orders')}
                 >
                   <Package className="w-4 h-4 mr-2" />
@@ -475,7 +491,7 @@ const BuyerDashboard = () => {
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="w-full justify-start"
+                  className="w-full justify-start touch-manipulation"
                   onClick={() => navigate('/profile')}
                 >
                   <Star className="w-4 h-4 mr-2" />
@@ -498,7 +514,7 @@ const BuyerDashboard = () => {
                     <p className="font-medium">Koramangala, Bangalore</p>
                     <p className="text-sm text-muted-foreground">Change location</p>
                   </div>
-                  <Button size="sm" variant="outline">
+                  <Button size="sm" variant="outline" className="touch-manipulation">
                     <MapPin className="h-4 w-4" />
                   </Button>
                 </div>
@@ -506,17 +522,11 @@ const BuyerDashboard = () => {
             </Card>
           </div>
         </div>
-      </div>
+      </main>
       
       <Footer />
     </div>
   );
 };
-
-const Store = ({ className }: { className?: string }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m11 0a2 2 0 01-2 2H5a2 2 0 01-2-2m5 0v-5a2 2 0 011-1h2a2 2 0 011 1v5m-4 0h4" />
-  </svg>
-);
 
 export default BuyerDashboard;

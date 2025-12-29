@@ -12,6 +12,8 @@ import { useAdminUsers } from "@/hooks/useAdminUsers";
 import { useAdminOrders } from "@/hooks/useAdminOrders";
 import { useAdminActivity } from "@/hooks/useAdminActivity";
 import { useToast } from "@/hooks/use-toast";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -99,21 +101,22 @@ const AdminDashboard = () => {
 
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card border-b border-border sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-primary/5 to-accent/5">
+      <Header />
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center space-x-4">
-              <Shield className="w-8 h-8 text-primary" />
+              <div className="w-12 h-12 rounded-xl bg-gradient-primary flex items-center justify-center">
+                <Shield className="w-6 h-6 text-primary-foreground" />
+              </div>
               <div>
-                <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold">Admin Dashboard</h1>
                 <p className="text-sm text-muted-foreground">BuyNest Platform Management</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Badge variant="secondary">Super Admin</Badge>
-              <Button variant="ghost">Profile</Button>
+              <Badge variant="secondary" className="text-xs sm:text-sm">Super Admin</Badge>
             </div>
           </div>
         </div>
@@ -509,7 +512,8 @@ const AdminDashboard = () => {
             </Card>
           </TabsContent>
         </Tabs>
-      </div>
+      </main>
+      <Footer />
     </div>
   );
 };

@@ -2,6 +2,8 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const PaymentProcessing = () => {
   const navigate = useNavigate();
@@ -12,8 +14,10 @@ const PaymentProcessing = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <Card className="max-w-md w-full">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-primary/5 to-accent/5">
+      <Header />
+      <main className="flex-1 flex items-center justify-center px-4 py-8">
+        <Card className="max-w-md w-full shadow-xl border-primary/10">
         <CardHeader>
           <CardTitle>Redirecting to Payment...</CardTitle>
         </CardHeader>
@@ -24,6 +28,8 @@ const PaymentProcessing = () => {
           </p>
         </CardContent>
       </Card>
+      </main>
+      <Footer />
     </div>
   );
 };

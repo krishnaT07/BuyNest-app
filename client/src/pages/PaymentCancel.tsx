@@ -1,14 +1,19 @@
+"use client";
 import { useNavigate } from "react-router-dom";
 import { XCircle, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const PaymentCancel = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
-      <Card className="w-full max-w-md text-center">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-primary/5 to-accent/5">
+      <Header />
+      <main className="flex-1 flex items-center justify-center px-4 py-8">
+        <Card className="w-full max-w-md text-center shadow-xl border-primary/10">
         <CardHeader className="space-y-4">
           <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
             <XCircle className="w-8 h-8 text-red-600" />
@@ -51,6 +56,8 @@ const PaymentCancel = () => {
           </div>
         </CardContent>
       </Card>
+      </main>
+      <Footer />
     </div>
   );
 };
