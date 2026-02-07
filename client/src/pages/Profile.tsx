@@ -31,10 +31,7 @@ import {
   Bell,
   CheckCircle2,
   Camera,
-  Lock,
-  LogOut,
-  Download,
-  Trash2
+  Lock
 } from "lucide-react";
 import { LocationInput } from "@/components/LocationInput";
 import { useAddressBook } from "@/context/AddressBookContext";
@@ -44,7 +41,7 @@ import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { user, updateUser, logout } = useAuth();
+  const { user, updateUser } = useAuth();
   const { toast } = useToast();
   const { addresses, addAddress, removeAddress } = useAddressBook();
   
@@ -155,15 +152,6 @@ const Profile = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleLogout = () => {
-    logout();
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out.",
-    });
-    navigate("/");
   };
 
   if (!user) {
@@ -392,124 +380,6 @@ const Profile = () => {
                           <MapPin className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                           <span className="break-words">{user.address || 'Not provided'}</span>
                         </div>
-                      )}
-                    </div>
-
-                    <Separator />
-
-                    {/* Account Actions */}
-                    <div className="space-y-4">
-                      <h3 className="font-semibold">Account Actions</h3>
-                      
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <Button 
-                          variant="outline" 
-                          className="justify-start touch-manipulation"
-                          onClick={handlePasswordReset}
-                          disabled={loading}
-                        >
-                          <Key className="w-4 h-4 mr-2" />
-                          Change Password
-                        </Button>
-                        
-                        <Button 
-                          variant="outline" 
-                          className="justify-start touch-manipulation"
-                          disabled
-                          onClick={() => toast({ title: "Feature coming soon", description: "Data download will be available soon." })}
-                        >
-                          <Download className="w-4 h-4 mr-2" />
-                          Download Data
-                        </Button>
-                        
-                        <Button 
-                          variant="outline" 
-                          className="justify-start touch-manipulation"
-                          disabled
-                          onClick={() => toast({ title: "Feature coming soon", description: "Privacy settings will be available soon." })}
-                        >
-                          <Shield className="w-4 h-4 mr-2" />
-                          Privacy Settings
-                        </Button>
-                        
-                        <Button 
-                          variant="destructive" 
-                          className="justify-start touch-manipulation"
-                          disabled
-                          onClick={() => toast({ title: "Feature coming soon", description: "Account deletion will be available soon." })}
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Delete Account
-                        </Button>
-                      </div>
-                      
-                      <Separator />
-                      
-                      <Button 
-                        variant="destructive" 
-                        className="w-full touch-manipulation"
-                        onClick={handleLogout}
-                      >
-                        <LogOut className="w-4 h-4 mr-2" />
-                        Logout
-                      </Button>
-                      
-                      <p className="text-xs text-muted-foreground">
-                        Click "Change Password" to receive a password reset link via email.
-                      </p>
-                    </div>
-
-                    <Separator />
-
-                    {/* Address Book Section */}
-                    <div className="space-y-4">
-                      <h3 className="font-semibold">Address Book</h3>
-                      {addresses.length === 0 ? (
-                        <div className="text-center py-6 border rounded-lg bg-muted/30">
-                          <MapPin className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
-                          <p className="text-sm text-muted-foreground mb-3">No saved addresses yet.</p>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => navigate("/buyer/addresses")}
-                            className="touch-manipulation"
-                          >
-                            Add Address
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="grid sm:grid-cols-2 gap-3">
-                          {addresses.slice(0, 2).map(a => (
-                            <Card key={a.id} className="border hover:border-primary/50 transition-colors">
-                              <CardContent className="pt-4">
-                                <div className="flex items-start justify-between">
-                                  <div className="flex-1 min-w-0">
-                                    <p className="font-semibold text-sm mb-1 truncate">{a.label}</p>
-                                    <p className="text-xs text-muted-foreground line-clamp-2">{a.line1}</p>
-                                  </div>
-                                  <Button 
-                                    variant="ghost" 
-                                    size="sm" 
-                                    onClick={() => removeAddress(a.id)}
-                                    className="touch-manipulation ml-2 flex-shrink-0"
-                                  >
-                                    <X className="h-3 w-3" />
-                                  </Button>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
-                        </div>
-                      )}
-                      {addresses.length > 0 && (
-                        <Button 
-                          variant="outline" 
-                          className="w-full touch-manipulation"
-                          onClick={() => navigate("/buyer/addresses")}
-                        >
-                          <MapPin className="h-4 w-4 mr-2" />
-                          {addresses.length > 2 ? `View All ${addresses.length} Addresses` : "Manage Addresses"}
-                        </Button>
                       )}
                     </div>
                   </CardContent>
