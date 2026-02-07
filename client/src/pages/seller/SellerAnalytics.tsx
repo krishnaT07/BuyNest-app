@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import Navbar from "@/components/Navbar";
+import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PerformanceMetrics } from "@/components/seller/PerformanceMetrics";
@@ -12,7 +12,7 @@ const SellerAnalytics = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
+      <Header />
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight mb-2">Analytics</h1>

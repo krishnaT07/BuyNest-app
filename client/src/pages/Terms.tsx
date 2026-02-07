@@ -1,12 +1,12 @@
 "use client";
-import Navbar from "@/components/Navbar";
+import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 
 const Terms = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
+      <Header />
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl font-bold tracking-tight mb-8">Terms of Service</h1>

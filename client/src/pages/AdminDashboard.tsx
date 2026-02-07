@@ -12,7 +12,7 @@ import { useAdminUsers } from "@/hooks/useAdminUsers";
 import { useAdminOrders } from "@/hooks/useAdminOrders";
 import { useAdminActivity } from "@/hooks/useAdminActivity";
 import { useToast } from "@/hooks/use-toast";
-import Navbar from "@/components/Navbar";
+import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 const AdminDashboard = () => {
@@ -102,7 +102,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-primary/5 to-accent/5">
-      <Navbar />
+      <Header />
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
         <div className="mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

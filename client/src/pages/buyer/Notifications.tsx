@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import Navbar from "@/components/Navbar";
+import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -100,7 +100,7 @@ const Notifications = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
+      <Header />
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="mb-8 flex items-center justify-between">
           <div>

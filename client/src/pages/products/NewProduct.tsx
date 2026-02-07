@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import Navbar from "@/components/Navbar";
+import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
 import { useSellerProducts } from "@/hooks/useSellerProducts";
@@ -124,7 +124,7 @@ const NewProduct = () => {
   if (shopLoading) {
     return (
       <div className="min-h-screen">
-        <Navbar />
+        <Header />
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-2xl mx-auto">
             <div className="text-center py-16">
@@ -142,7 +142,7 @@ const NewProduct = () => {
   if (!shop || !shop.is_approved) {
     return (
       <div className="min-h-screen">
-        <Navbar />
+        <Header />
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-2xl mx-auto">
             <div className="text-center py-16">
@@ -175,7 +175,7 @@ const NewProduct = () => {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
+      <Header />
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">

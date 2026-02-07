@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { formatCurrency } from "@/lib/utils";
 import { Minus, Plus, Trash2, ShoppingBag, Truck, Shield, Gift, ArrowRight, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import Navbar from "@/components/Navbar";
+import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 const Cart = () => {
@@ -22,7 +22,7 @@ const Cart = () => {
   if (items.length === 0) {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-primary/5 to-accent/5">
-        <Navbar />
+        <Header />
         <div className="flex-1 flex items-center justify-center px-4 py-16">
           <div className="text-center max-w-md">
             <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
@@ -57,7 +57,7 @@ const Cart = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-primary/5 to-accent/5">
-      <Navbar />
+      <Header />
       <main className="flex-1 container mx-auto px-4 py-8 max-w-7xl">
         {/* Header */}
         <div className="mb-8">
