@@ -69,13 +69,6 @@ const Browse = () => {
     sortBy: sortBy
   });
 
-  // Client-side filtering for additional filters
-  const filteredProducts = (products as any)?.filter((p: any) => {
-    if (inStockOnly && !p.inStock) return false;
-    // Note: Rating filter would need rating data in products
-    return true;
-  }) || [];
-
   const loading = activeTab === "shops" ? shopsLoading : productsLoading;
   const error = activeTab === "shops" ? shopsError : productsError;
   const { addToCart } = useCart();
@@ -329,24 +322,21 @@ const Browse = () => {
                         <ShopCard key={shop.id} shop={shop} viewMode={viewMode} />
                       ))
                     ) : (
-                      <div className="col-span-full text-center py-12">
-                        <ShoppingBag className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-                        <h3 className="text-lg font-semibold mb-2">No shops found</h3>
-                        <p className="text-muted-foreground mb-4">Try adjusting your search or filters</p>
-                        <Button variant="outline" onClick={() => {
-                          setSelectedCategory("All Categories");
-                          setSortBy("relevance");
-                          setSearchQuery("");
-                        }}>
-                          Clear All Filters
-                        </Button>
+                      <div className="col-span-full text-center py-8">
+                        <p className="text-muted-foreground">No shops found matching your criteria.</p>
                       </div>
                     )}
                   </div>
                 ) : (
                   <div className={viewMode === "grid" ? "grid md:grid-cols-2 xl:grid-cols-3 gap-6" : "space-y-4"}>
-                    {filteredProducts && filteredProducts.length > 0 ? (
-                      filteredProducts.map((product: any) => (
+                    {(products as any) && (products as any).length > 0 ? (
+                      (products as any)
+                        .filter((p: any) => !inStockOnly || p.inStock)
+                        .filter((p: any) => {
+                          if (!minRating) return true;
+                          return true; // placeholder if rating exists later
+                        })
+                        .map((product: any) => (
                         <Card key={product.id} className="overflow-hidden hover:shadow-strong hover:-translate-y-1 transition-all cursor-pointer border-primary/10 bg-gradient-to-br from-card to-muted/30 animate-fade-in group">
                           <div className="relative overflow-hidden">
                             <img
@@ -403,20 +393,8 @@ const Browse = () => {
                         </Card>
                       ))
                     ) : (
-                      <div className="col-span-full text-center py-12">
-                        <ShoppingBag className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-                        <h3 className="text-lg font-semibold mb-2">No products found</h3>
-                        <p className="text-muted-foreground mb-4">Try adjusting your search or filters</p>
-                        <Button variant="outline" onClick={() => {
-                          setSelectedCategory("All Categories");
-                          setPriceRange([0, 10000]);
-                          setSortBy("relevance");
-                          setSearchQuery("");
-                          setInStockOnly(false);
-                          setMinRating(null);
-                        }}>
-                          Clear All Filters
-                        </Button>
+                      <div className="col-span-full text-center py-8">
+                        <p className="text-muted-foreground">No products found matching your criteria.</p>
                       </div>
                     )}
                   </div>
