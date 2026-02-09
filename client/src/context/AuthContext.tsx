@@ -47,35 +47,101 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Ensure user's profile and role records exist (runs after first login)
   const bootstrapUser = async (uid: string, metadata: any) => {
     try {
-      const { data: existingProfile } = await supabase
+      // Wait for session to be available
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        console.warn("No session available for bootstrapUser");
+        return;
+      }
+
+      const { data: existingProfile, error: profileError } = await supabase
         .from("profiles")
         .select("user_id")
         .eq("user_id", uid)
         .maybeSingle();
 
+      if (profileError && profileError.code !== 'PGRST116') { // PGRST116 is "not found" which is OK
+        console.error("Error checking profile:", profileError);
+        // If it's a 401, the session might not be ready yet, retry once
+        if (profileError.code === '42501' || profileError.message.includes('401')) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+          const retry = await supabase
+            .from("profiles")
+            .select("user_id")
+            .eq("user_id", uid)
+            .maybeSingle();
+          if (retry.error && retry.error.code !== 'PGRST116') {
+            throw retry.error;
+          }
+        } else {
+          throw profileError;
+        }
+      }
+
       if (!existingProfile) {
-        await supabase.from("profiles").insert({
+        const { error: insertError } = await supabase.from("profiles").insert({
           user_id: uid,
           name: metadata?.name ?? "",
           phone: metadata?.phone ?? null,
         });
+        if (insertError) {
+          // If insert fails due to 401, wait and retry
+          if (insertError.code === '42501' || insertError.message.includes('401')) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await supabase.from("profiles").insert({
+              user_id: uid,
+              name: metadata?.name ?? "",
+              phone: metadata?.phone ?? null,
+            });
+          } else {
+            console.error("Error inserting profile:", insertError);
+          }
+        }
       }
 
-      const { data: existingRole } = await supabase
+      const { data: existingRole, error: roleError } = await supabase
         .from("user_roles")
         .select("id")
         .eq("user_id", uid)
         .limit(1);
+
+      if (roleError && roleError.code !== 'PGRST116') {
+        console.error("Error checking role:", roleError);
+        if (roleError.code === '42501' || roleError.message.includes('401')) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+          const retry = await supabase
+            .from("user_roles")
+            .select("id")
+            .eq("user_id", uid)
+            .limit(1);
+          if (retry.error && retry.error.code !== 'PGRST116') {
+            throw retry.error;
+          }
+        } else {
+          throw roleError;
+        }
+      }
 
       if (!existingRole || existingRole.length === 0) {
         const desiredRole =
           metadata?.role === "seller" || metadata?.role === "buyer"
             ? metadata.role
             : "buyer";
-        await supabase.from("user_roles").insert({
+        const { error: insertRoleError } = await supabase.from("user_roles").insert({
           user_id: uid,
           role: desiredRole,
         });
+        if (insertRoleError) {
+          if (insertRoleError.code === '42501' || insertRoleError.message.includes('401')) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await supabase.from("user_roles").insert({
+              user_id: uid,
+              role: desiredRole,
+            });
+          } else {
+            console.error("Error inserting role:", insertRoleError);
+          }
+        }
       }
     } catch (e) {
       console.error("bootstrapUser failed", e);
@@ -84,31 +150,86 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchProfileAndRole = useCallback(async (uid: string, currentSession: Session | null) => {
     try {
-      const { data: profile } = await supabase
+      // Ensure session is available
+      if (!currentSession) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          console.warn("No session available for fetchProfileAndRole");
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("name, phone, avatar, address, is_verified, created_at, updated_at")
         .eq("user_id", uid)
         .maybeSingle();
 
-      const { data: rolesData } = await supabase
+      // Handle 401 errors with retry
+      let profileData = profile;
+      if (profileError) {
+        if (profileError.code === '42501' || profileError.message.includes('401')) {
+          // Wait a bit and retry once
+          await new Promise(resolve => setTimeout(resolve, 500));
+          const retry = await supabase
+            .from("profiles")
+            .select("name, phone, avatar, address, is_verified, created_at, updated_at")
+            .eq("user_id", uid)
+            .maybeSingle();
+          if (retry.error && retry.error.code !== 'PGRST116') {
+            console.error("Failed to fetch profile after retry:", retry.error);
+            setIsLoading(false);
+            return;
+          }
+          profileData = retry.data;
+        } else if (profileError.code !== 'PGRST116') {
+          console.error("Failed to fetch profile:", profileError);
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      const { data: rolesData, error: rolesError } = await supabase
         .from("user_roles")
         .select("role")
         .eq("user_id", uid);
 
-      const effectiveRole: UserRole = rolesData && rolesData.length > 0 ? getEffectiveRole(rolesData as any) : "buyer";
+      // Handle 401 errors with retry for roles
+      let rolesDataFinal = rolesData;
+      if (rolesError) {
+        if (rolesError.code === '42501' || rolesError.message.includes('401')) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+          const retry = await supabase
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", uid);
+          if (retry.error) {
+            console.error("Failed to fetch roles after retry:", retry.error);
+            // Continue with default role
+          } else {
+            rolesDataFinal = retry.data;
+          }
+        } else {
+          console.error("Failed to fetch roles:", rolesError);
+          // Continue with default role
+        }
+      }
+
+      const effectiveRole: UserRole = (rolesDataFinal && rolesDataFinal.length > 0) ? getEffectiveRole(rolesDataFinal as any) : "buyer";
 
       const email = currentSession?.user?.email ?? "";
       const mapped: AppUser = {
         id: uid,
-        name: profile?.name ?? (email ? email.split("@")[0] : "User"),
+        name: profileData?.name ?? (email ? email.split("@")[0] : "User"),
         email,
-        phone: profile?.phone ?? "",
+        phone: profileData?.phone ?? "",
         role: effectiveRole,
-        avatar: profile?.avatar ?? undefined,
-        address: profile?.address ?? undefined,
-        isVerified: Boolean(profile?.is_verified),
-        createdAt: profile?.created_at ? new Date(profile.created_at) : new Date(),
-        updatedAt: profile?.updated_at ? new Date(profile.updated_at) : new Date(),
+        avatar: profileData?.avatar ?? undefined,
+        address: profileData?.address ?? undefined,
+        isVerified: Boolean(profileData?.is_verified),
+        createdAt: profileData?.created_at ? new Date(profileData.created_at) : new Date(),
+        updatedAt: profileData?.updated_at ? new Date(profileData.updated_at) : new Date(),
       };
 
       setUser(mapped);
@@ -144,28 +265,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     // 1) Subscribe to auth changes first
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, s) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, s) => {
       setSession(s);
       setUser(null);
       if (s?.user) {
+        // Wait a bit to ensure session is fully initialized
+        await new Promise(resolve => setTimeout(resolve, 100));
         // 2) Defer bootstrap + fetch to avoid deadlocks
         setTimeout(() => {
           void bootstrapUser(s.user!.id, s.user!.user_metadata || {});
           fetchProfileAndRole(s.user!.id, s);
-        }, 0);
+        }, 100);
       } else {
         setIsLoading(false);
       }
     });
 
     // 3) Then check for an existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       if (session?.user) {
+        // Wait a bit to ensure session is fully initialized
+        await new Promise(resolve => setTimeout(resolve, 100));
         setTimeout(() => {
           void bootstrapUser(session.user!.id, session.user!.user_metadata || {});
           fetchProfileAndRole(session.user!.id, session);
-        }, 0);
+        }, 100);
       } else {
         setIsLoading(false);
       }
