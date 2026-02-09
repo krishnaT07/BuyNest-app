@@ -39,8 +39,8 @@ import ShopCard from "@/components/ShopCard";
 const BuyerDashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { items: cartItems, totalPrice, totalItems } = useCart();
-  const { wishlistItems, isInWishlist, toggleWishlist } = useWishlist();
+  const { items: cartItems = [], totalPrice, totalItems } = useCart();
+  const { items: wishlistItems = [], isInWishlist, toggleWishlist } = useWishlist();
   const { toast } = useToast();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -107,40 +107,41 @@ const BuyerDashboard = () => {
     });
   }, [toast]);
 
-  // Memoize expensive calculations
+  // Memoize expensive calculations (guard against undefined from hooks)
+  const shopsList = Array.isArray(shops) ? shops : [];
   const statsCards = useMemo(() => [
     {
       title: "Cart Items",
-      value: totalItems,
+      value: totalItems ?? 0,
       icon: ShoppingCart,
       color: "text-primary"
     },
     {
       title: "Wishlist",
-      value: wishlistItems.length,
+      value: (wishlistItems ?? []).length,
       icon: Heart,
       color: "text-red-500"
     },
     {
       title: "Total Spent",
-      value: formatPrice(totalPrice),
+      value: formatPrice(totalPrice ?? 0),
       icon: TrendingUp,
       color: "text-green-500"
     },
     {
       title: "Nearby Shops",
-      value: (shops as any)?.length || 0,
+      value: shopsList.length,
       icon: Store,
       color: "text-blue-500"
     }
-  ], [totalItems, wishlistItems.length, totalPrice, shops]);
+  ], [totalItems, wishlistItems, totalPrice, shopsList.length]);
 
   const filteredProducts = useMemo(() => {
-    return (products as any)?.slice(0, 12) || [];
+    return Array.isArray(products) ? products.slice(0, 12) : [];
   }, [products]);
 
   const filteredShops = useMemo(() => {
-    return (shops as any) || [];
+    return Array.isArray(shops) ? shops : [];
   }, [shops]);
 
   return (
@@ -357,8 +358,8 @@ const BuyerDashboard = () => {
 
               <TabsContent value="wishlist" className="mt-6">
                 <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {wishlistItems.length > 0 ? (
-                    wishlistItems.map((item) => (
+                  {(wishlistItems ?? []).length > 0 ? (
+                    (wishlistItems ?? []).map((item) => (
                       <Card key={item.id} className="overflow-hidden hover:shadow-md transition-shadow">
                         <div className="aspect-square bg-muted overflow-hidden">
                           <img
@@ -412,10 +413,10 @@ const BuyerDashboard = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {cartItems.length > 0 ? (
+                {(cartItems ?? []).length > 0 ? (
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      {cartItems.slice(0, 3).map((item) => (
+                      {(cartItems ?? []).slice(0, 3).map((item) => (
                         <div key={item.id} className="flex items-center justify-between text-sm">
                           <div className="flex-1">
                             <p className="font-medium truncate">{item.name}</p>
@@ -424,9 +425,9 @@ const BuyerDashboard = () => {
                           <p className="font-medium">{formatPrice(item.price * item.quantity)}</p>
                         </div>
                       ))}
-                      {cartItems.length > 3 && (
+                      {(cartItems ?? []).length > 3 && (
                         <p className="text-xs text-muted-foreground">
-                          +{cartItems.length - 3} more items
+                          +{(cartItems ?? []).length - 3} more items
                         </p>
                       )}
                     </div>
