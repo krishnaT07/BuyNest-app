@@ -307,16 +307,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         setIsLoading(false);
-        // Check if it's a network error
         if (error.message.includes('Failed to fetch') || error.message.includes('ERR_NAME_NOT_RESOLVED')) {
           throw new Error("Unable to connect to the server. Please check your internet connection and verify your Supabase configuration.");
+        }
+        // 400 Bad Request - invalid credentials
+        if ((error as any).status === 400 || error.message?.toLowerCase().includes('invalid')) {
+          throw new Error("Invalid email or password. Please try again.");
+        }
+        if ((error as any).status === 429) {
+          throw new Error("Too many attempts. Please wait a few minutes and try again.");
         }
         throw new Error(error.message || "Login failed");
       }
       // State will be updated by onAuthStateChange
     } catch (error: any) {
       setIsLoading(false);
-      // Re-throw network errors with a user-friendly message
       if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
         throw new Error("Network error: Unable to connect to the authentication server. Please check your Supabase configuration.");
       }
@@ -342,16 +347,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) {
         setIsLoading(false);
-        // Check if it's a network error
         if (error.message.includes('Failed to fetch') || error.message.includes('ERR_NAME_NOT_RESOLVED')) {
           throw new Error("Unable to connect to the server. Please check your internet connection and verify your Supabase configuration.");
+        }
+        // 429 Too Many Requests - rate limited by Supabase
+        if ((error as any).status === 429 || error.message?.includes('429') || error.message?.toLowerCase().includes('too many')) {
+          throw new Error("Too many signup attempts. Please wait 5–10 minutes and try again.");
+        }
+        // 400 Bad Request - e.g. email already registered, invalid data
+        if ((error as any).status === 400) {
+          throw new Error(error.message || "Invalid request. This email may already be registered—try logging in instead.");
         }
         throw new Error(error.message || "Registration failed");
       }
       setIsLoading(false);
     } catch (error: any) {
       setIsLoading(false);
-      // Re-throw network errors with a user-friendly message
       if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
         throw new Error("Network error: Unable to connect to the authentication server. Please check your Supabase configuration.");
       }

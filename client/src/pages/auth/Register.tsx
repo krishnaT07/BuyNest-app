@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,9 @@ import authHeroImage from "@/assets/auth-hero.jpg";
 
 type Step = "register" | "verify";
 
+const SIGNUP_COOLDOWN_KEY = "buynest_signup_cooldown_until";
+const COOLDOWN_SECONDS = 5 * 60; // 5 minutes
+
 const Register = () => {
   const [step, setStep] = useState<Step>("register");
   const [otp, setOtp] = useState("");
@@ -29,9 +32,40 @@ const Register = () => {
     phone: "",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [cooldownUntil, setCooldownUntil] = useState<number | null>(() => {
+    if (typeof window === "undefined") return null;
+    const stored = sessionStorage.getItem(SIGNUP_COOLDOWN_KEY);
+    const until = stored ? parseInt(stored, 10) : 0;
+    return until > Date.now() ? until : null;
+  });
+  const [cooldownSecondsLeft, setCooldownSecondsLeft] = useState(() => {
+    if (typeof window === "undefined") return 0;
+    const stored = sessionStorage.getItem(SIGNUP_COOLDOWN_KEY);
+    const until = stored ? parseInt(stored, 10) : 0;
+    if (until <= Date.now()) return 0;
+    return Math.max(0, Math.ceil((until - Date.now()) / 1000));
+  });
   const { register } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  const isOnCooldown = cooldownSecondsLeft > 0;
+
+  useEffect(() => {
+    const update = () => {
+      if (cooldownUntil == null) return;
+      const left = Math.max(0, Math.ceil((cooldownUntil - Date.now()) / 1000));
+      setCooldownSecondsLeft(left);
+      if (left <= 0) {
+        setCooldownUntil(null);
+        sessionStorage.removeItem(SIGNUP_COOLDOWN_KEY);
+      }
+    };
+    update();
+    if (cooldownUntil == null || cooldownUntil <= Date.now()) return;
+    const interval = setInterval(update, 1000);
+    return () => clearInterval(interval);
+  }, [cooldownUntil]);
 
   const validateForm = () => {
     if (!formData.name.trim()) {
@@ -84,7 +118,7 @@ const Register = () => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    if (isLoading || isOnCooldown) return;
     if (!validateForm()) return;
 
     setIsLoading(true);
@@ -98,9 +132,17 @@ const Register = () => {
       
       setStep("verify");
     } catch (error: any) {
+      const message = error?.message || "";
+      const isRateLimited = message.includes("Too many") || message.includes("429") || message.toLowerCase().includes("too many attempts");
+      if (isRateLimited) {
+        const until = Date.now() + COOLDOWN_SECONDS * 1000;
+        setCooldownUntil(until);
+        setCooldownSecondsLeft(COOLDOWN_SECONDS);
+        sessionStorage.setItem(SIGNUP_COOLDOWN_KEY, String(until));
+      }
       toast({
         title: "Registration Failed",
-        description: error.message || "Please try again later.",
+        description: message || "Please try again later.",
         variant: "destructive",
       });
     } finally {
@@ -478,17 +520,24 @@ const Register = () => {
               <Button
                 type="submit"
                 className="w-full h-12 sm:h-13 text-base font-bold bg-gradient-primary hover:opacity-90 hover:scale-[1.02] transition-all shadow-lg hover:shadow-xl rounded-xl touch-manipulation"
-                disabled={isLoading}
+                disabled={isLoading || isOnCooldown}
               >
                 {isLoading ? (
                   <span className="flex items-center gap-2">
                     <span className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     Creating Account...
                   </span>
+                ) : isOnCooldown ? (
+                  `Try again in ${Math.floor(cooldownSecondsLeft / 60)}:${String(cooldownSecondsLeft % 60).padStart(2, "0")}`
                 ) : (
                   "Create Account"
                 )}
               </Button>
+              {isOnCooldown && (
+                <p className="text-center text-sm text-muted-foreground">
+                  Too many signup attempts. Please wait before trying again.
+                </p>
+              )}
             </form>
 
             <div className="text-center p-4 rounded-xl bg-muted/50 border border-border/50">
