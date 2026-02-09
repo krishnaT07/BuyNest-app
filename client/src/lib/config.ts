@@ -76,9 +76,9 @@ const configs: Record<string, Partial<AppConfig>> = {
 // Base configuration
 const baseConfig: AppConfig = {
   supabase: {
-    url: "https://mnntmkmxmlpycykdiuwd.supabase.co",
-    anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ubnRta214bWxweWN5a2RpdXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0OTgwMjEsImV4cCI6MjA3MDA3NDAyMX0.Ogxn8Z5kmIkHY4_-8pfQx3SwzrRA6H_TCqQ3NNJ_4L8",
-    projectId: "mnntmkmxmlpycykdiuwd",
+    url: import.meta.env.VITE_SUPABASE_URL || "https://mnntmkmxmlpycykdiuwd.supabase.co",
+    anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ubnRta214bWxweWN5a2RpdXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0OTgwMjEsImV4cCI6MjA3MDA3NDAyMX0.Ogxn8Z5kmIkHY4_-8pfQx3SwzrRA6H_TCqQ3NNJ_4L8",
+    projectId: import.meta.env.VITE_SUPABASE_PROJECT_ID || (import.meta.env.VITE_SUPABASE_URL ? new URL(import.meta.env.VITE_SUPABASE_URL).hostname.split('.')[0] : "mnntmkmxmlpycykdiuwd"),
   },
   app: {
     name: "BuyNest",

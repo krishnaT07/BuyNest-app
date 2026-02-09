@@ -2,8 +2,18 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = "https://mnntmkmxmlpycykdiuwd.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ubnRta214bWxweWN5a2RpdXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0OTgwMjEsImV4cCI6MjA3MDA3NDAyMX0.Ogxn8Z5kmIkHY4_-8pfQx3SwzrRA6H_TCqQ3NNJ_4L8";
+// Use environment variables with fallback to hardcoded values for backward compatibility
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://mnntmkmxmlpycykdiuwd.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ubnRta214bWxweWN5a2RpdXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0OTgwMjEsImV4cCI6MjA3MDA3NDAyMX0.Ogxn8Z5kmIkHY4_-8pfQx3SwzrRA6H_TCqQ3NNJ_4L8";
+
+// Validate that Supabase URL is provided
+if (!SUPABASE_URL || SUPABASE_URL === '') {
+  console.error('VITE_SUPABASE_URL is not set. Please check your environment variables.');
+}
+
+if (!SUPABASE_PUBLISHABLE_KEY || SUPABASE_PUBLISHABLE_KEY === '') {
+  console.error('VITE_SUPABASE_ANON_KEY is not set. Please check your environment variables.');
+}
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
@@ -13,5 +23,31 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     storage: localStorage,
     persistSession: true,
     autoRefreshToken: true,
-  }
+    detectSessionInUrl: true,
+  },
+  global: {
+    fetch: (url, options = {}) => {
+      return fetch(url, {
+        ...options,
+        headers: {
+          ...options.headers,
+        },
+      }).catch((error) => {
+        // Handle network errors gracefully
+        if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+          console.error('Network error: Unable to connect to Supabase. Please check:', {
+            url: SUPABASE_URL,
+            error: error.message,
+            possibleCauses: [
+              'Supabase project may be paused or deleted',
+              'Incorrect Supabase URL',
+              'Network connectivity issues',
+              'DNS resolution failure'
+            ]
+          });
+        }
+        throw error;
+      });
+    },
+  },
 });

@@ -178,34 +178,60 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = useCallback(async (email: string, password: string) => {
     setIsLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        setIsLoading(false);
+        // Check if it's a network error
+        if (error.message.includes('Failed to fetch') || error.message.includes('ERR_NAME_NOT_RESOLVED')) {
+          throw new Error("Unable to connect to the server. Please check your internet connection and verify your Supabase configuration.");
+        }
+        throw new Error(error.message || "Login failed");
+      }
+      // State will be updated by onAuthStateChange
+    } catch (error: any) {
       setIsLoading(false);
-      throw new Error(error.message || "Login failed");
+      // Re-throw network errors with a user-friendly message
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        throw new Error("Network error: Unable to connect to the authentication server. Please check your Supabase configuration.");
+      }
+      throw error;
     }
-    // State will be updated by onAuthStateChange
   }, []);
 
   const register = useCallback(async (userData: RegisterData) => {
     setIsLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email: userData.email,
-      password: userData.password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/login`,
-        data: {
-          name: userData.name,
-          phone: userData.phone,
-          role: userData.role,
+    try {
+      const { error } = await supabase.auth.signUp({
+        email: userData.email,
+        password: userData.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/login`,
+          data: {
+            name: userData.name,
+            phone: userData.phone,
+            role: userData.role,
+          },
         },
-      },
-    });
+      });
 
-    if (error) {
+      if (error) {
+        setIsLoading(false);
+        // Check if it's a network error
+        if (error.message.includes('Failed to fetch') || error.message.includes('ERR_NAME_NOT_RESOLVED')) {
+          throw new Error("Unable to connect to the server. Please check your internet connection and verify your Supabase configuration.");
+        }
+        throw new Error(error.message || "Registration failed");
+      }
       setIsLoading(false);
-      throw new Error(error.message || "Registration failed");
+    } catch (error: any) {
+      setIsLoading(false);
+      // Re-throw network errors with a user-friendly message
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        throw new Error("Network error: Unable to connect to the authentication server. Please check your Supabase configuration.");
+      }
+      throw error;
     }
-    setIsLoading(false);
   }, []);
 
   const logout = useCallback(() => {
