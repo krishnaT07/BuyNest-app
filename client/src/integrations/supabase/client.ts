@@ -15,6 +15,15 @@ if (!SUPABASE_PUBLISHABLE_KEY || SUPABASE_PUBLISHABLE_KEY === '') {
   console.error('VITE_SUPABASE_ANON_KEY is not set. Please check your environment variables.');
 }
 
+// Debug: Log configuration in development (first few characters only for security)
+if (import.meta.env.DEV) {
+  console.log('Supabase Client Configuration:', {
+    url: SUPABASE_URL,
+    hasApiKey: !!SUPABASE_PUBLISHABLE_KEY,
+    apiKeyPrefix: SUPABASE_PUBLISHABLE_KEY?.substring(0, 20) + '...'
+  });
+}
+
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
@@ -27,11 +36,19 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
   },
   global: {
     fetch: (url, options = {}) => {
+      // Create headers object, handling both Headers instance and plain object
+      const headers = options.headers instanceof Headers 
+        ? new Headers(options.headers)
+        : new Headers(options.headers || {});
+      
+      // Ensure apikey header is always present (Supabase requires this)
+      if (!headers.has('apikey')) {
+        headers.set('apikey', SUPABASE_PUBLISHABLE_KEY);
+      }
+      
       return fetch(url, {
         ...options,
-        headers: {
-          ...options.headers,
-        },
+        headers: headers,
       }).catch((error) => {
         // Handle network errors gracefully
         if (error instanceof TypeError && error.message.includes('Failed to fetch')) {

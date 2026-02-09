@@ -27,11 +27,19 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
   },
   global: {
     fetch: (url, options = {}) => {
+      // Create headers object, handling both Headers instance and plain object
+      const headers = options.headers instanceof Headers 
+        ? new Headers(options.headers)
+        : new Headers(options.headers || {});
+      
+      // Ensure apikey header is always present (Supabase requires this)
+      if (!headers.has('apikey')) {
+        headers.set('apikey', SUPABASE_PUBLISHABLE_KEY);
+      }
+      
       return fetch(url, {
         ...options,
-        headers: {
-          ...options.headers,
-        },
+        headers: headers,
       }).catch((error) => {
         // Handle network errors gracefully
         if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
